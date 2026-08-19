@@ -1,14 +1,5 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>🧠 Memory Match — Bright Arcade</title>
-    <style>
-      *{box-sizing:border-box}
-      html,body{
-        margin:0;
-        min-height:100%;font-family:Inter,system-ui,Arial,sans-serif;color:#fff}
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>🧠 Memory Match — Bright Arcade</title><style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,Arial,sans-serif;color:#fff}
 body{background:radial-gradient(circle at 15% 10%,#5434b9 0,transparent 30%),radial-gradient(circle at 85% 15%,#008eb4 0,transparent 28%),linear-gradient(135deg,#090d24,#11183a 60%,#080b20);overflow-x:hidden}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.1;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:42px 42px}
 .container{width:min(1150px,92%);margin:auto}.nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}.brand{font-size:24px;font-weight:950;letter-spacing:-.04em}.brand span{color:#67e8ff}.nav a,.btn{color:#fff;text-decoration:none;border:1px solid #ffffff20;background:#ffffff0d;padding:11px 16px;border-radius:14px;font-weight:800;cursor:pointer;transition:.2s}.nav a:hover,.btn:hover{transform:translateY(-2px);background:#ffffff18}
@@ -28,7 +19,54 @@ canvas{display:block;width:min(72vh,78vw,560px);height:min(72vh,78vw,560px);max-
 @media(max-width:480px){.grid{grid-template-columns:1fr}.card{min-height:210px}.gamebox h2{font-size:20px}}
 </style></head><body class="gamepage">
 <header class="gamebar"><a class="btn" href="index.html">← Home</a><h1>🧠 Memory Match</h1><span style="color:#91a0c8;font-size:12px">Bright Arcade</span></header>
-<main class="gamearea"><section class="gamebox"><h2>🧠 Memory Match</h2><div class="stats">Match all 8 pairs</div><div class="board"><div id="board" class="memory"></div><div class="touch">Tap cards to reveal matching pairs</div></div><div class="center"><button class="btn restart" onclick="init&&init();start&&start()">↻ Restart</button></div></section></main><script>
-const icons=['🌈','🚀','🦄','🐼','🍕','🌟','🎈','🐸'];let deck=[],open=[],matched=0;
-function init(){deck=[...icons,...icons].sort(()=>Math.random()-.5);open=[];matched=0;render()}function render(){let b=document.getElementById('board');b.innerHTML='';deck.forEach((v,i)=>{let q=document.createElement('button');q.textContent=v;q.className=(open.includes(i)?'open ':'')+(deck[i]==='MATCHED'?'matched':'');if(deck[i]==='MATCHED')q.textContent=v;q.onclick=()=>flip(i);b.appendChild(q)})}function flip(i){if(open.length===2||open.includes(i)||deck[i]==='MATCHED')return;open.push(i);render();if(open.length===2){if(deck[open[0]]===deck[open[1]]){let p=open;setTimeout(()=>{p.forEach(j=>deck[j]='MATCHED');matched++;open=[];render();if(matched===8)alert('🎉 Amazing memory!')},450)}else setTimeout(()=>{open=[];render()},650)}}init();
+<main class="gamearea"><section class="gamebox"><h2>🧠 Memory Match</h2><div class="stats">Match all 8 pairs</div><div class="board"><div id="board" class="memory"></div><div class="touch">Tap cards to reveal matching pairs</div></div><div class="center"><button class="btn restart" onclick="init()">↻ Restart</button></div></section></main><script>
+const icons=['🌈','🚀','🦄','🐼','🍕','🌟','🎈','🐸'];
+let deck=[],open=[],matched=[];
+
+function init(){
+  deck=[...icons,...icons].sort(()=>Math.random()-.5);
+  open=[];
+  matched=[];
+  render();
+}
+
+function render(){
+  let b=document.getElementById('board');
+  b.innerHTML='';
+  deck.forEach((v,i)=>{
+    let q=document.createElement('button');
+    let isOpen = open.includes(i);
+    let isMatched = matched.includes(i);
+    
+    q.className = isMatched ? 'matched' : (isOpen ? 'open' : '');
+    q.textContent = (isOpen || isMatched) ? v : '';
+    q.onclick = ()=>flip(i);
+    b.appendChild(q);
+  });
+}
+
+function flip(i){
+  if(open.length===2 || open.includes(i) || matched.includes(i)) return;
+  open.push(i);
+  render();
+  
+  if(open.length===2){
+    if(deck[open[0]]===deck[open[1]]){
+      let p=[...open];
+      setTimeout(()=>{
+        matched.push(...p);
+        open=[];
+        render();
+        if(matched.length===deck.length) alert('🎉 Amazing memory!');
+      },300);
+    } else {
+      setTimeout(()=>{
+        open=[];
+        render();
+      },650);
+    }
+  }
+}
+
+init();
 </script></body></html>

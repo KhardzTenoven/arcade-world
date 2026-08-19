@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Arcade World — Mini Games</title>
+<style>
+:root{--bg:#0b1026;--card:rgba(255,255,255,.09);--line:rgba(255,255,255,.16);--text:#fff;--muted:#b9c2e4;--pink:#ff4fa3;--cyan:#35d9ff;--yellow:#ffd85c}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,Segoe UI,sans-serif;color:var(--text);background:radial-gradient(circle at 15% 10%,#3a1d75 0,transparent 32%),radial-gradient(circle at 85% 20%,#064c72 0,transparent 30%),linear-gradient(135deg,#080b1b,#121936 60%,#0b1026);min-height:100vh;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:45px 45px;opacity:.08;animation:drift 20s linear infinite}
+@keyframes drift{to{background-position:90px 90px}} @keyframes float{50%{transform:translateY(-10px)}} @keyframes pop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+header{max-width:1180px;margin:auto;padding:58px 22px 24px;text-align:center;position:relative}
+.badge{display:inline-block;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.07);color:#dce5ff;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+h1{font-size:clamp(44px,8vw,86px);line-height:.92;margin:18px 0 16px;letter-spacing:-.06em;background:linear-gradient(90deg,#fff,#72e7ff,#ff72bd);-webkit-background-clip:text;color:transparent}
+header p{max-width:650px;margin:auto;color:var(--muted);font-size:18px}
+nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:28px auto 0} nav button,.primary{border:1px solid var(--line);background:rgba(255,255,255,.08);color:white;border-radius:14px;padding:12px 17px;cursor:pointer;font-weight:800;transition:.2s} nav button:hover,.primary:hover{transform:translateY(-3px);background:rgba(255,255,255,.15)}
+main{max-width:1180px;margin:auto;padding:20px 22px 70px}.game{display:none;animation:pop .35s ease}.game.active{display:block}
+.panel{background:var(--card);border:1px solid var(--line);backdrop-filter:blur(18px);border-radius:28px;padding:22px;box-shadow:0 25px 80px rgba(0,0,0,.3)}
+.game-head{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.game-head h2{margin:0;font-size:30px}.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{padding:9px 13px;border-radius:12px;background:rgba(0,0,0,.2);color:#dce5ff}.board-wrap{display:flex;justify-content:center;align-items:center;margin:22px 0}
+#snakeCanvas{width:min(78vw,520px);height:min(78vw,520px);border-radius:22px;border:2px solid rgba(255,255,255,.15);background:#07101b;box-shadow:0 15px 50px #0006}
+.controls{display:grid;grid-template-columns:repeat(3,60px);gap:8px;justify-content:center}.controls button{height:52px;border:0;border-radius:14px;background:#ffffff12;color:white;font-size:20px;cursor:pointer}.controls button:hover{background:#ffffff25}
+#candyBoard{width:min(88vw,520px);display:grid;grid-template-columns:repeat(8,1fr);gap:6px;padding:10px;border-radius:20px;background:#ffffff0d}.candy{aspect-ratio:1;border:0;border-radius:16px;cursor:pointer;box-shadow:inset 0 2px 3px #fff8,0 4px 8px #0004;transition:.15s}.candy:hover{transform:scale(1.08)}.candy.selected{outline:4px solid white;transform:scale(1.08)}.c0{background:#ff5c8a}.c1{background:#55d6ff}.c2{background:#ffd85c}.c3{background:#8bea71}.c4{background:#b978ff}.c5{background:#ff9b4a}
+#puzzle{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;width:min(90vw,480px);margin:auto}.tile{aspect-ratio:1;border:0;border-radius:14px;background:linear-gradient(135deg,#49d9ff,#6d62ff);color:white;font-size:clamp(22px,6vw,42px);font-weight:900;cursor:pointer;box-shadow:0 8px 15px #0004}.tile:hover{filter:brightness(1.15);transform:translateY(-2px)}.tile.empty{background:transparent;box-shadow:none;cursor:default}
+.hint{text-align:center;color:var(--muted);margin:16px 0 0}.actions{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap}
+footer{text-align:center;color:#7782aa;padding:0 20px 35px;font-size:13px}
+@media(max-width:600px){header{padding-top:38px}.panel{padding:15px;border-radius:22px}.game-head h2{font-size:24px}}
+</style>
+</head>
+<body>
+<header>
+  <span class="badge">✨ Welcome to Arcade World</span>
+  <h1>Play. Match. Solve.</h1>
+  <p>A colorful mini-game arcade with smooth animations, satisfying effects, and three games built right into one page.</p>
+  <nav>
+    <button onclick="showGame('snake')">🐍 Snake</button>
+    <button onclick="showGame('candy')">🍬 Candy Match</button>
+    <button onclick="showGame('puzzle')">🧩 Puzzle</button>
+  </nav>
+</header>
+
+<main>
+<section id="snake" class="game active"><div class="panel">
+  <div class="game-head"><h2>🐍 Neon Snake</h2><div class="stats"><span class="stat">Score: <b id="snakeScore">0</b></span><span class="stat">Best: <b id="snakeBest">0</b></span></div></div>
+  <div class="board-wrap"><canvas id="snakeCanvas" width="520" height="520"></canvas></div>
+  <div class="actions"><button class="primary" onclick="startSnake()">▶ Start / Restart</button></div>
+  <p class="hint">Use arrow keys or WASD. On mobile, use the buttons.</p>
+  <div class="controls"><span></span><button onclick="changeDir('up')">▲</button><span></span><button onclick="changeDir('left')">◀</button><button onclick="changeDir('down')">▼</button><button onclick="changeDir('right')">▶</button></div>
+</div></section>
+
+<section id="candy" class="game"><div class="panel">
+  <div class="game-head"><h2>🍬 Candy Match</h2><div class="stats"><span class="stat">Score: <b id="candyScore">0</b></span><span class="stat">Moves: <b id="candyMoves">30</b></span></div></div>
+  <div class="board-wrap"><div id="candyBoard"></div></div>
+  <p class="hint">Swap neighboring candies to make 3 or more in a row.</p>
+  <div class="actions"><button class="primary" onclick="newCandy()">↻ New Game</button></div>
+</div></section>
+
+<section id="puzzle" class="game"><div class="panel">
+  <div class="game-head"><h2>🧩 Sliding Puzzle</h2><div class="stats"><span class="stat">Moves: <b id="puzzleMoves">0</b></span></div></div>
+  <div class="board-wrap"><div id="puzzle"></div></div>
+  <p class="hint">Put the numbers in order from 1 to 15.</p>
+  <div class="actions"><button class="primary" onclick="newPuzzle()">🔀 Shuffle</button></div>
+</div></section>
+</main>
+<footer>Made for fun • Smooth animations • Works on desktop and mobile</footer>
+
+<script>
+function showGame(id){document.querySelectorAll('.game').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='snake')drawSnake()}
+function $(id){return document.getElementById(id)}
+
+/* SNAKE */
+const sc=$('snakeCanvas'),ctx=sc.getContext('2d'),N=20;let snake,food,dir,nextDir,score=0,snakeTimer=null;
+let best=+localStorage.getItem('arcadeBest')||0;$('snakeBest').textContent=best;
+function startSnake(){clearInterval(snakeTimer);snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir={x:1,y:0};nextDir=dir;score=0;$('snakeScore').textContent=0;placeFood();drawSnake();snakeTimer=setInterval(stepSnake,105)}
+function placeFood(){do{food={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)}}while(snake.some(s=>s.x===food.x&&s.y===food.y))}
+function changeDir(d){let m={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}[d];if(m&&!(m.x===-dir.x&&m.y===-dir.y))nextDir=m}
+function stepSnake(){dir=nextDir;let h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(h.x<0||h.y<0||h.x>=N||h.y>=N||snake.some(s=>s.x===h.x&&s.y===h.y)){clearInterval(snakeTimer);return}snake.unshift(h);if(h.x===food.x&&h.y===food.y){score+=10;$('snakeScore').textContent=score;if(score>best){best=score;localStorage.setItem('arcadeBest',best);$('snakeBest').textContent=best}placeFood()}else snake.pop();drawSnake()}
+function drawSnake(){ctx.clearRect(0,0,520,520);ctx.fillStyle='#07101b';ctx.fillRect(0,0,520,520);let cell=26;for(let i=0;i<N;i++)for(let j=0;j<N;j++){ctx.fillStyle=(i+j)%2?'#0a1622':'#09131f';ctx.fillRect(i*cell,j*cell,cell,cell)}
+if(food){ctx.fillStyle='#ff4fa3';ctx.beginPath();ctx.arc(food.x*cell+13,food.y*cell+13,9,0,Math.PI*2);ctx.fill()}
+snake?.forEach((s,i)=>{ctx.fillStyle=i?'#42e6a4':'#7cffd0';ctx.beginPath();ctx.roundRect(s.x*cell+2,s.y*cell+2,22,22,7);ctx.fill()})}
+document.addEventListener('keydown',e=>{let k=e.key.toLowerCase();if(k==='arrowup'||k==='w')changeDir('up');if(k==='arrowdown'||k==='s')changeDir('down');if(k==='arrowleft'||k==='a')changeDir('left');if(k==='arrowright'||k==='d')changeDir('right');if(k===' '&&document.getElementById('snake').classList.contains('active'))startSnake()});
+startSnake();
+
+/* CANDY MATCH */
+const CB=8,types=6;let candy=[],selected=null,cScore=0,cMoves=30;
+function newCandy(){cScore=0;cMoves=30;selected=null;do{candy=Array.from({length:CB*CB},()=>Math.floor(Math.random()*types))}while(findMatches().length);renderCandy()}
+function renderCandy(){let b=$('candyBoard');b.innerHTML='';candy.forEach((v,i)=>{let x=document.createElement('button');x.className='candy c'+v+(selected===i?' selected':'');x.onclick=()=>pickCandy(i);b.appendChild(x)});$('candyScore').textContent=cScore;$('candyMoves').textContent=cMoves}
+function pickCandy(i){if(cMoves<=0)return;if(selected===null){selected=i;renderCandy();return}let a=selected,b=i,ar=Math.floor(a/CB),ac=a%CB,br=Math.floor(b/CB),bc=b%CB;if(Math.abs(ar-br)+Math.abs(ac-bc)!==1){selected=i;renderCandy();return}[candy[a],candy[b]]=[candy[b],candy[a]];let m=findMatches();if(!m.length){[candy[a],candy[b]]=[candy[b],candy[a]]}else{cMoves--;resolveCandy()}selected=null;renderCandy()}
+function findMatches(){let set=new Set();for(let r=0;r<CB;r++){let run=1;for(let c=1;c<=CB;c++){if(c<CB&&candy[r*CB+c]===candy[r*CB+c-1])run++;else{if(run>=3)for(let k=0;k<run;k++)set.add(r*CB+c-1-k);run=1}}}for(let c=0;c<CB;c++){let run=1;for(let r=1;r<=CB;r++){if(r<CB&&candy[r*CB+c]===candy[(r-1)*CB+c])run++;else{if(run>=3)for(let k=0;k<run;k++)set.add((r-1-k)*CB+c);run=1}}}return [...set]}
+function resolveCandy(){let m=findMatches();if(!m.length)return; cScore+=m.length*10;m.forEach(i=>candy[i]=-1);for(let c=0;c<CB;c++){let vals=[];for(let r=CB-1;r>=0;r--)if(candy[r*CB+c]>=0)vals.push(candy[r*CB+c]);for(let r=CB-1;r>=0;r--)candy[r*CB+c]=vals[CB-1-r]??Math.floor(Math.random()*types)}setTimeout(()=>{resolveCandy();renderCandy()},120)}
+newCandy();
+
+/* PUZZLE */
+let puzzle=[],pMoves=0;
+function newPuzzle(){puzzle=[...Array(15)].map((_,i)=>i+1);puzzle.push(0);for(let i=0;i<250;i++){let z=puzzle.indexOf(0),r=Math.floor(z/4),c=z%4,opts=[];if(r)opts.push(z-4);if(r<3)opts.push(z+4);if(c)opts.push(z-1);if(c<3)opts.push(z+1);let q=opts[Math.floor(Math.random()*opts.length)];[puzzle[z],puzzle[q]]=[puzzle[q],puzzle[z]]}pMoves=0;renderPuzzle()}
+function renderPuzzle(){let el=$('puzzle');el.innerHTML='';puzzle.forEach((v,i)=>{let b=document.createElement('button');b.className='tile'+(v===0?' empty':'');b.textContent=v||'';b.onclick=()=>movePuzzle(i);el.appendChild(b)});$('puzzleMoves').textContent=pMoves}
+function movePuzzle(i){let z=puzzle.indexOf(0),r=Math.floor(i/4),c=i%4,zr=Math.floor(z/4),zc=z%4;if(Math.abs(r-zr)+Math.abs(c-zc)!==1)return;[puzzle[i],puzzle[z]]=[puzzle[z],puzzle[i]];pMoves++;renderPuzzle();if(puzzle.every((v,i)=>v===((i+1)%16)))setTimeout(()=>alert('🎉 You solved it!'),100)}
+newPuzzle();drawSnake();
+</script>
+</body>
+</html>

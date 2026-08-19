@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🚀 Neon Galaxy — Bright Arcade</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, system-ui, Arial, sans-serif;
+      color: #fff;
+    }
+
+    body {
+      background: radial-gradient(circle at 15% 10%, #5434b9 0, transparent 30%),
+        radial-gradient(circle at 85% 15%, #008eb4 0, transparent 28%),
+        linear-gradient(135deg, #090d24, #11183a 60%, #080b20);
+      overflow-x: hidden;
+    }
+
+    body:before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .1;
+      background-image: radial-gradient(#fff 1px, transparent 1px);
+      background-size: 42px 42px;
+    }
+
+    .gamepage {
+      height: 100dvh;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gamebar {
+      height: 72px;
+      flex: 0 0 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 max(18px, 4vw);
+      border-bottom: 1px solid #ffffff14;
+      background: #080c20dd;
+      backdrop-filter: blur(18px);
+      z-index: 5;
+    }
+
+    .gamebar h1 {
+      font-size: 22px;
+      margin: 0;
+    }
+
+    .btn {
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid #ffffff20;
+      background: #ffffff0d;
+      padding: 9px 14px;
+      border-radius: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      background: #ffffff18;
+    }
+
+    .gamearea {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .gamebox {
+      width: min(900px, 100%);
+      height: min(100%, 860px);
+      min-height: 0;
+      border: 1px solid #ffffff18;
+      border-radius: 26px;
+      background: #ffffff09;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 25px 80px #0005;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gamebox h2 {
+      text-align: center;
+      margin: 0 0 8px;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      color: #bfc9e7;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .board {
+      margin: auto;
+      max-width: 100%;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      width: min(65vh, 75vw, 420px);
+      height: min(65vh, 75vw, 520px);
+      max-width: 100%;
+      border-radius: 20px;
+      background: #050614;
+      border: 1px solid #ffffff18;
+      touch-action: none;
+    }
+
+    .touch {
+      color: #8f9bc0;
+      text-align: center;
+      font-size: 12px;
+      margin: 6px 0 0;
+    }
+
+    .controls-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body class="gamepage">
+
+  <header class="gamebar">
+    <a class="btn" href="index.html">← Home</a>
+    <h1>🚀 Neon Galaxy</h1>
+    <span style="color:#91a0c8;font-size:12px">Bright Arcade</span>
+  </header>
+
+  <main class="gamearea">
+    <section class="gamebox">
+      <h2>🚀 Neon Galaxy</h2>
+      <div class="stats">
+        <span>Score: <b id="score">0</b></span> |
+        <span>Kills: <b id="kills">0</b></span>
+      </div>
+
+      <div class="board">
+        <canvas id="board" width="420" height="520"></canvas>
+        <div class="touch">Drag touch screen or use Arrow Keys/WASD to fly ship</div>
+      </div>
+
+      <div class="controls-row">
+        <button class="btn" id="audioToggle" onclick="toggleAudio()">🔊 Audio: OFF</button>
+        <button class="btn" onclick="start()">↻ Restart</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const C = document.getElementById('board'),
+      x = C.getContext('2d');
+
+    let player, bullets, enemies, stars, score, kills, animId, gameOver = false, fireCounter = 0;
+    let audioCtx = null, audioEnabled = false;
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function toggleAudio() {
+      initAudio();
+      audioEnabled = !audioEnabled;
+      document.getElementById('audioToggle').textContent = audioEnabled ? '🔊 Audio: ON' : '0🔈 Audio: OFF';
+    }
+
+    function playSound(freq, type, duration) {
+      if (!audioEnabled || !audioCtx) return;
+      let osc = audioCtx.createOscillator();
+      let gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function start() {
+      cancelAnimationFrame(animId);
+      gameOver = false;
+      score = 0;
+      kills = 0;
+      document.getElementById('score').textContent = score;
+      document.getElementById('kills').textContent = kills;
+
+      player = { x: 210, y: 440, w: 32, h: 32, speed: 6 };
+      bullets = [];
+      enemies = [];
+      stars = Array.from({ length: 40 }, () => ({ x: Math.random() * 420, y: Math.random() * 520, s: Math.random() * 2 + 1 }));
+
+      loop();
+    }
+
+    function loop() {
+      if (gameOver) return;
+
+      // Stars
+      stars.forEach(s => {
+        s.y += s.s;
+        if (s.y > 520) s.y = 0;
+      });
+
+      // Auto Fire
+      fireCounter++;
+      if (fireCounter % 8 === 0) {
+        bullets.push({ x: player.x, y: player.y - 10 });
+        playSound(600, 'square', 0.04);
+      }
+
+      // Move Bullets
+      bullets.forEach(b => b.y -= 9);
+      bullets = bullets.filter(b => b.y > -10);
+
+      // Spawn Enemies
+      if (Math.random() < 0.04) {
+        enemies.push({ x: Math.random() * 380 + 20, y: -20, r: 16, speed: Math.random() * 2 + 2 });
+      }
+
+      // Move Enemies
+      enemies.forEach(e => e.y += e.speed);
+
+      // Bullet-Enemy Collisions
+      bullets.forEach((b, bi) => {
+        enemies.forEach((e, ei) => {
+          if (Math.hypot(b.x - e.x, b.y - e.y) < e.r + 4) {
+            bullets.splice(bi, 1);
+            enemies.splice(ei, 1);
+            score += 50;
+            kills++;
+            document.getElementById('score').textContent = score;
+            document.getElementById('kills').textContent = kills;
+            playSound(180, 'sawtooth', 0.1);
+          }
+        });
+      });
+
+      // Player-Enemy Collisions
+      for (let e of enemies) {
+        if (Math.hypot(player.x - e.x, player.y - e.y) < e.r + 15) {
+          gameOver = true;
+          playSound(100, 'sawtooth', 0.3);
+          drawGameOver();
+          return;
+        }
+      }
+
+      enemies = enemies.filter(e => e.y < 540);
+
+      draw();
+
+      animId = requestAnimationFrame(loop);
+    }
+
+    function draw() {
+      x.fillStyle = '#050614';
+      x.fillRect(0, 0, 420, 520);
+
+      // Stars
+      x.fillStyle = '#ffffff66';
+      stars.forEach(s => x.fillRect(s.x, s.y, s.s, s.s));
+
+      // Bullets
+      x.fillStyle = '#ff82c8';
+      bullets.forEach(b => {
+        x.beginPath();
+        x.arc(b.x, b.y, 4, 0, Math.PI * 2);
+        x.fill();
+      });
+
+      // Enemies
+      x.fillStyle = '#ff4f70';
+      enemies.forEach(e => {
+        x.beginPath();
+        x.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+        x.fill();
+      });
+
+      // Player Ship
+      x.fillStyle = '#75eaff';
+      x.beginPath();
+      x.moveTo(player.x, player.y - 18);
+      x.lineTo(player.x - 16, player.y + 14);
+      x.lineTo(player.x + 16, player.y + 14);
+      x.closePath();
+      x.fill();
+    }
+
+    function drawGameOver() {
+      x.fillStyle = '#000000aa';
+      x.fillRect(0, 0, 420, 520);
+      x.fillStyle = '#fff';
+      x.font = 'bold 30px Inter';
+      x.textAlign = 'center';
+      x.fillText('GAME OVER', 210, 240);
+      x.font = '16px Inter';
+      x.fillText('Tap Restart to play again', 210, 280);
+    }
+
+    let keys = {};
+    document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+    document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+    setInterval(() => {
+      if (gameOver) return;
+      if ((keys['arrowleft'] || keys['a']) && player.x > 20) player.x -= player.speed;
+      if ((keys['arrowright'] || keys['d']) && player.x < 400) player.x += player.speed;
+      if ((keys['arrowup'] || keys['w']) && player.y > 20) player.y -= player.speed;
+      if ((keys['arrowdown'] || keys['s']) && player.y < 500) player.y += player.speed;
+    }, 1000 / 60);
+
+    C.addEventListener('pointermove', e => {
+      if (e.buttons > 0) {
+        initAudio();
+        let rect = C.getBoundingClientRect();
+        player.x = Math.max(20, Math.min(400, e.clientX - rect.left));
+        player.y = Math.max(20, Math.min(500, e.clientY - rect.top));
+      }
+    });
+
+    start();
+  </script>
+</body>
+</html>

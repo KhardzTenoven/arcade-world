@@ -176,191 +176,212 @@
 
   <script>
     const C = document.getElementById('board'),
-      x = C.getContext('2d');
+  x = C.getContext('2d');
 
-    let player, obstacles, coins, score, coinCount, gameSpeed, animId, gameOver = false;
-    let audioCtx = null, audioEnabled = false;
+let player, obstacles, coins, score, coinCount, gameSpeed, animId, gameOver = false;
+let audioCtx = null, audioEnabled = false;
 
-    const LANES = [105, 210, 315];
+const LANES = [105, 210, 315];
 
-    function initAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function toggleAudio() {
+  initAudio();
+  audioEnabled = !audioEnabled;
+  document.getElementById('audioToggle').textContent = audioEnabled ? '🔊 Audio: ON' : '🔈 Audio: OFF';
+}
+
+function playBeep(freq, duration) {
+  if (!audioEnabled || !audioCtx) return;
+  let osc = audioCtx.createOscillator();
+  let gain = audioCtx.createGain();
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function start() {
+  cancelAnimationFrame(animId);
+  gameOver = false;
+  score = 0;
+  coinCount = 0;
+  gameSpeed = 4;
+  document.getElementById('score').textContent = score;
+  document.getElementById('coins').textContent = coinCount;
+
+  player = { lane: 1, y: 430, w: 38, h: 65 };
+  obstacles = [];
+  coins = [];
+
+  loop();
+}
+
+function move(dir) {
+  if (gameOver) return;
+  initAudio();
+  if (dir === 'left' && player.lane > 0) player.lane--;
+  if (dir === 'right' && player.lane < 2) player.lane++;
+  playBeep(300, 0.05);
+}
+
+let roadOffset = 0;
+
+function loop() {
+  if (gameOver) return;
+
+  // Update
+  score++;
+  if (score % 250 === 0) gameSpeed += 0.8;
+  document.getElementById('score').textContent = score;
+
+  roadOffset = (roadOffset + gameSpeed) % 40;
+
+  // Spawn Obstacles & Coins
+  if (Math.random() < 0.025) {
+    let lane = Math.floor(Math.random() * 3);
+    obstacles.push({ lane, y: -70, w: 38, h: 65, color: Math.random() < 0.5 ? '#ff4f70' : '#ff9d45' });
+  }
+
+  if (Math.random() < 0.02) {
+    let lane = Math.floor(Math.random() * 3);
+    coins.push({ lane, y: -30, r: 12 });
+  }
+
+  // Move Obstacles & Coins
+  obstacles.forEach(o => o.y += gameSpeed);
+  coins.forEach(c => c.y += gameSpeed);
+
+  // Check Collisions
+  let px = LANES[player.lane];
+  for (let o of obstacles) {
+    let ox = LANES[o.lane];
+    if (Math.abs(px - ox) < 30 && Math.abs(player.y - o.y) < 55) {
+      gameOver = true;
+      playBeep(120, 0.4);
+      drawGameOver();
+      return;
     }
+  }
 
-    function toggleAudio() {
-      initAudio();
-      audioEnabled = !audioEnabled;
-      document.getElementById('audioToggle').textContent = audioEnabled ? '🔊 Audio: ON' : '🔈 Audio: OFF';
-    }
-
-    function playBeep(freq, duration) {
-      if (!audioEnabled || !audioCtx) return;
-      let osc = audioCtx.createOscillator();
-      let gain = audioCtx.createGain();
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    }
-
-    function start() {
-      cancelAnimationFrame(animId);
-      gameOver = false;
-      score = 0;
-      coinCount = 0;
-      gameSpeed = 4;
-      document.getElementById('score').textContent = score;
+  // Collect Coins
+  coins = coins.filter(c => {
+    let cx = LANES[c.lane];
+    if (Math.abs(px - cx) < 25 && Math.abs(player.y - c.y) < 35) {
+      coinCount++;
       document.getElementById('coins').textContent = coinCount;
-
-      player = { lane: 1, y: 430, w: 38, h: 65 };
-      obstacles = [];
-      coins = [];
-
-      loop();
+      playBeep(800, 0.1);
+      return false;
     }
+    return c.y < 550;
+  });
 
-    function move(dir) {
-      if (gameOver) return;
-      initAudio();
-      if (dir === 'left' && player.lane > 0) player.lane--;
-      if (dir === 'right' && player.lane < 2) player.lane++;
-      playBeep(300, 0.05);
+  obstacles = obstacles.filter(o => o.y < 550);
+
+  // Draw
+  draw();
+
+  animId = requestAnimationFrame(loop);
+}
+
+function draw() {
+  // Road
+  x.fillStyle = '#080d1a';
+  x.fillRect(0, 0, 420, 520);
+
+  // Lane Markers
+  x.strokeStyle = '#ffffff20';
+  x.setLineDash([20, 20]);
+  x.lineDashOffset = -roadOffset;
+  x.lineWidth = 3;
+
+  x.beginPath();
+  x.moveTo(140, 0); x.lineTo(140, 520);
+  x.moveTo(280, 0); x.lineTo(280, 520);
+  x.stroke();
+  x.setLineDash([]);
+
+  // Coins
+  coins.forEach(c => {
+    let cx = LANES[c.lane];
+    x.fillStyle = '#ffd34d';
+    x.beginPath();
+    x.arc(cx, c.y, c.r, 0, Math.PI * 2);
+    x.fill();
+  });
+
+  // Obstacles
+  obstacles.forEach(o => {
+    let ox = LANES[o.lane] - o.w / 2;
+    x.fillStyle = o.color;
+    x.beginPath();
+    x.roundRect(ox, o.y, o.w, o.h, 8);
+    x.fill();
+  });
+
+  // Player Car
+  let px = LANES[player.lane] - player.w / 2;
+  x.fillStyle = '#67e8ff';
+  x.beginPath();
+  x.roundRect(px, player.y, player.w, player.h, 8);
+  x.fill();
+
+  // Car Windshield
+  x.fillStyle = '#080d1a';
+  x.fillRect(px + 6, player.y + 12, player.w - 12, 14);
+}
+
+function drawGameOver() {
+  x.fillStyle = '#000000aa';
+  x.fillRect(0, 0, 420, 520);
+  x.fillStyle = '#fff';
+  x.font = 'bold 30px Inter';
+  x.textAlign = 'center';
+  x.fillText('CRASHED!', 210, 240);
+  x.font = '16px Inter';
+  x.fillText('Tap Restart to play again', 210, 280);
+}
+
+// Keyboard controls
+document.addEventListener('keydown', e => {
+  let k = e.key.toLowerCase();
+  if (k === 'arrowleft' || k === 'a') move('left');
+  if (k === 'arrowright' || k === 'd') move('right');
+});
+
+// Swipe controls implementation
+let touchStartX = 0;
+let touchStartY = 0;
+
+C.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].clientX;
+  touchStartY = e.changedTouches[0].clientY;
+}, { passive: true });
+
+C.addEventListener('touchend', e => {
+  let touchEndX = e.changedTouches[0].clientX;
+  let touchEndY = e.changedTouches[0].clientY;
+
+  let dx = touchEndX - touchStartX;
+  let dy = touchEndY - touchStartY;
+
+  // Minimum threshold to prevent accidental taps from registering as swipes
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 20) {
+    if (dx > 0) {
+      move('right');
+    } else {
+      move('left');
     }
+  }
+}, { passive: true });
 
-    let roadOffset = 0;
-
-    function loop() {
-      if (gameOver) return;
-
-      // Update
-      score++;
-      if (score % 250 === 0) gameSpeed += 0.8;
-      document.getElementById('score').textContent = score;
-
-      roadOffset = (roadOffset + gameSpeed) % 40;
-
-      // Spawn Obstacles & Coins
-      if (Math.random() < 0.025) {
-        let lane = Math.floor(Math.random() * 3);
-        obstacles.push({ lane, y: -70, w: 38, h: 65, color: Math.random() < 0.5 ? '#ff4f70' : '#ff9d45' });
-      }
-
-      if (Math.random() < 0.02) {
-        let lane = Math.floor(Math.random() * 3);
-        coins.push({ lane, y: -30, r: 12 });
-      }
-
-      // Move Obstacles
-      obstacles.forEach(o => o.y += gameSpeed);
-      coins.forEach(c => c.y += gameSpeed);
-
-      // Check Collisions
-      let px = LANES[player.lane];
-      for (let o of obstacles) {
-        let ox = LANES[o.lane];
-        if (Math.abs(px - ox) < 30 && Math.abs(player.y - o.y) < 55) {
-          gameOver = true;
-          playBeep(120, 0.4);
-          drawGameOver();
-          return;
-        }
-      }
-
-      // Collect Coins
-      coins = coins.filter(c => {
-        let cx = LANES[c.lane];
-        if (Math.abs(px - cx) < 25 && Math.abs(player.y - c.y) < 35) {
-          coinCount++;
-          document.getElementById('coins').textContent = coinCount;
-          playBeep(800, 0.1);
-          return false;
-        }
-        return c.y < 550;
-      });
-
-      obstacles = obstacles.filter(o => o.y < 550);
-
-      // Draw
-      draw();
-
-      animId = requestAnimationFrame(loop);
-    }
-
-    function draw() {
-      // Road
-      x.fillStyle = '#080d1a';
-      x.fillRect(0, 0, 420, 520);
-
-      // Lane Markers
-      x.strokeStyle = '#ffffff20';
-      x.setLineDash([20, 20]);
-      x.lineDashOffset = -roadOffset;
-      x.lineWidth = 3;
-
-      x.beginPath();
-      x.moveTo(140, 0); x.lineTo(140, 520);
-      x.moveTo(280, 0); x.lineTo(280, 520);
-      x.stroke();
-      x.setLineDash([]);
-
-      // Coins
-      coins.forEach(c => {
-        let cx = LANES[c.lane];
-        x.fillStyle = '#ffd34d';
-        x.beginPath();
-        x.arc(cx, c.y, c.r, 0, Math.PI * 2);
-        x.fill();
-      });
-
-      // Obstacles
-      obstacles.forEach(o => {
-        let ox = LANES[o.lane] - o.w / 2;
-        x.fillStyle = o.color;
-        x.beginPath();
-        x.roundRect(ox, o.y, o.w, o.h, 8);
-        x.fill();
-      });
-
-      // Player Car
-      let px = LANES[player.lane] - player.w / 2;
-      x.fillStyle = '#67e8ff';
-      x.beginPath();
-      x.roundRect(px, player.y, player.w, player.h, 8);
-      x.fill();
-
-      // Car Windshield
-      x.fillStyle = '#080d1a';
-      x.fillRect(px + 6, player.y + 12, player.w - 12, 14);
-    }
-
-    function drawGameOver() {
-      x.fillStyle = '#000000aa';
-      x.fillRect(0, 0, 420, 520);
-      x.fillStyle = '#fff';
-      x.font = 'bold 30px Inter';
-      x.textAlign = 'center';
-      x.fillText('CRASHED!', 210, 240);
-      x.font = '16px Inter';
-      x.fillText('Tap Restart to play again', 210, 280);
-    }
-
-    document.addEventListener('keydown', e => {
-      let k = e.key.toLowerCase();
-      if (k === 'arrowleft' || k === 'a') move('left');
-      if (k === 'arrowright' || k === 'd') move('right');
-    });
-
-    C.addEventListener('pointerdown', e => {
-      let rect = C.getBoundingClientRect();
-      let tapX = e.clientX - rect.left;
-      move(tapX < rect.width / 2 ? 'left' : 'right');
-    });
-
-    start();
+start();
   </script>
 </body>
 </html>

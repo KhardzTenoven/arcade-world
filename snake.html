@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>🐍 Neon Snake — Bright Arcade</title>
   <style>
     * {
@@ -272,6 +272,7 @@
       margin: auto;
       max-width: 100%;
       max-height: calc(100% - 110px);
+      touch-action: none;
     }
 
     canvas {
@@ -283,6 +284,7 @@
       border-radius: 20px;
       background: #06101b;
       border: 1px solid #ffffff18;
+      touch-action: none;
     }
 
     .controls {
@@ -315,100 +317,15 @@
       margin: 8px 0 0;
     }
 
-    .choicegrid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      width: min(560px, 100%);
-      margin: auto;
-    }
-
-    .choice {
-      aspect-ratio: 1;
-      border: 0;
-      border-radius: 20px;
-      font-size: 42px;
-      cursor: pointer;
-      background: #ffffff0b;
-      transition: .15s;
-      box-shadow: inset 0 2px 3px #fff5;
-    }
-
-    .choice:hover {
-      transform: scale(1.04);
-    }
-
-    .choice.sel {
-      outline: 4px solid #fff;
-    }
-
-    .c0 { background: #ff537d; }
-    .c1 { background: #ff9d45; }
-    .c2 { background: #ffd34d; }
-    .c3 { background: #65dc7c; }
-    .c4 { background: #63cfff; }
-    .c5 { background: #a778ff; }
-
-    .puzzle {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 7px;
-      width: min(500px, 100%);
-      margin: auto;
-    }
-
-    .tile {
-      aspect-ratio: 1;
-      border: 0;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #43d9ff, #6a62ff);
-      color: #fff;
-      font-weight: 950;
-      font-size: clamp(22px, 6vw, 42px);
-      cursor: pointer;
-    }
-
-    .tile.empty {
-      background: transparent;
-      box-shadow: none;
-      cursor: default;
-    }
-
     .center {
       text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
     }
 
     .restart {
       margin-top: 12px;
-    }
-
-    .memory {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 9px;
-      width: min(520px, 100%);
-      margin: auto;
-    }
-
-    .memory button {
-      aspect-ratio: 1;
-      border: 0;
-      border-radius: 15px;
-      background: linear-gradient(135deg, #4d58a9, #292f68);
-      color: transparent;
-      font-size: 34px;
-      cursor: pointer;
-      transition: .2s;
-    }
-
-    .memory button.open {
-      background: #ffffff18;
-      color: #fff;
-    }
-
-    .memory button.matched {
-      background: linear-gradient(135deg, #2abf9c, #1b7968);
-      color: #fff;
     }
 
     @media (max-width: 760px) {
@@ -436,14 +353,6 @@
 
       .gamearea {
         padding: 8px;
-      }
-
-      .choicegrid {
-        gap: 7px;
-      }
-
-      .memory {
-        gap: 6px;
       }
     }
 
@@ -473,7 +382,7 @@
   <main class="gamearea">
     <section class="gamebox">
       <h2>🐍 Neon Snake</h2>
-      <div class="stats">Score: <b id="score">0</b> • Swipe the board or use the touch controls</div>
+      <div class="stats">Score: <b id="score">0</b> • Swipe board or use buttons</div>
       <div class="board">
         <canvas id="board" width="520" height="520"></canvas>
         <div class="controls">
@@ -482,10 +391,11 @@
           <button onclick="go('down')">↓</button>
           <button onclick="go('right')">→</button>
         </div>
-        <div class="touch">Touch controls enabled • Keyboard arrows/WASD also supported</div>
+        <div class="touch">Touch controls enabled • Keyboard arrows/WASD supported</div>
       </div>
       <div class="center">
         <button class="btn restart" onclick="init&&init();start&&start()">↻ Restart</button>
+        <button class="btn restart" id="audioToggle" onclick="toggleAudio()">🔊 Audio: OFF</button>
       </div>
     </section>
   </main>
@@ -495,6 +405,46 @@
       x = C.getContext('2d'),
       N = 20;
     let s, f, d, nd, score = 0, timer;
+
+    // Web Audio Synthesizer for Background Music
+    let audioCtx = null, audioEnabled = false, musicTimer = null, noteIndex = 0;
+    const melody = [261.63, 293.66, 329.63, 349.23, 392.00, 349.23, 329.63, 293.66];
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function toggleAudio() {
+      initAudio();
+      audioEnabled = !audioEnabled;
+      document.getElementById('audioToggle').textContent = audioEnabled ? '🔊 Audio: ON' : '🔈 Audio: OFF';
+      if (audioEnabled) {
+        playMusicStep();
+      } else if (musicTimer) {
+        clearTimeout(musicTimer);
+      }
+    }
+
+    function playMusicStep() {
+      if (!audioEnabled) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(melody[noteIndex % melody.length], audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.25);
+      noteIndex++;
+      musicTimer = setTimeout(playMusicStep, 260);
+    }
 
     function start() {
       clearInterval(timer);
@@ -517,6 +467,7 @@
     }
 
     function go(k) {
+      initAudio();
       let m = {
         up: { x: 0, y: -1 },
         down: { x: 0, y: 1 },
@@ -575,19 +526,26 @@
       if (k === 'arrowright' || k === 'd') go('right');
     });
 
+    // Mobile Swipe & Touch Controls
     let tx, ty;
     C.addEventListener('touchstart', e => {
+      e.preventDefault();
       tx = e.changedTouches[0].clientX;
       ty = e.changedTouches[0].clientY;
-    }, { passive: true });
+    }, { passive: false });
+
+    C.addEventListener('touchmove', e => {
+      e.preventDefault();
+    }, { passive: false });
 
     C.addEventListener('touchend', e => {
+      e.preventDefault();
       let a = e.changedTouches[0],
         dx = a.clientX - tx,
         dy = a.clientY - ty;
       if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return;
       go(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
-    }, { passive: true });
+    }, { passive: false });
 
     start();
   </script>

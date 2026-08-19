@@ -19,7 +19,7 @@ main{max-width:1180px;margin:auto;padding:20px 22px 70px}.game{display:none;anim
 .game-head{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.game-head h2{margin:0;font-size:30px}.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{padding:9px 13px;border-radius:12px;background:rgba(0,0,0,.2);color:#dce5ff}.board-wrap{display:flex;justify-content:center;align-items:center;margin:22px 0}
 #snakeCanvas{width:min(78vw,520px);height:min(78vw,520px);border-radius:22px;border:2px solid rgba(255,255,255,.15);background:#07101b;box-shadow:0 15px 50px #0006}
 .controls{display:grid;grid-template-columns:repeat(3,60px);gap:8px;justify-content:center}.controls button{height:52px;border:0;border-radius:14px;background:#ffffff12;color:white;font-size:20px;cursor:pointer}.controls button:hover{background:#ffffff25}
-#candyBoard{width:min(88vw,520px);display:grid;grid-template-columns:repeat(8,1fr);gap:6px;padding:10px;border-radius:20px;background:#ffffff0d}.candy{aspect-ratio:1;border:0;border-radius:16px;cursor:pointer;box-shadow:inset 0 2px 3px #fff8,0 4px 8px #0004;transition:.15s}.candy:hover{transform:scale(1.08)}.candy.selected{outline:4px solid white;transform:scale(1.08)}.c0{background:#ff5c8a}.c1{background:#55d6ff}.c2{background:#ffd85c}.c3{background:#8bea71}.c4{background:#b978ff}.c5{background:#ff9b4a}
+#candyBoard{width:min(88vw,520px);display:grid;grid-template-columns:repeat(8,1fr);gap:6px;padding:10px;border-radius:20px;background:#ffffff0d}.candy{aspect-ratio:1;border:0;border-radius:16px;cursor:pointer;box-shadow:inset 0 2px 3px #fff8,0 4px 8px #0004;transition:.15s;font-size:clamp(24px,5vw,40px);display:flex;align-items:center;justify-content:center;line-height:1;touch-action:none;user-select:none}.candy:hover{transform:scale(1.08)}.candy.selected{outline:4px solid white;transform:scale(1.08)}.c0{background:#ff5c8a}.c1{background:#55d6ff}.c2{background:#ffd85c}.c3{background:#8bea71}.c4{background:#b978ff}.c5{background:#ff9b4a}
 #puzzle{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;width:min(90vw,480px);margin:auto}.tile{aspect-ratio:1;border:0;border-radius:14px;background:linear-gradient(135deg,#49d9ff,#6d62ff);color:white;font-size:clamp(22px,6vw,42px);font-weight:900;cursor:pointer;box-shadow:0 8px 15px #0004}.tile:hover{filter:brightness(1.15);transform:translateY(-2px)}.tile.empty{background:transparent;box-shadow:none;cursor:default}
 .hint{text-align:center;color:var(--muted);margin:16px 0 0}.actions{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap}
 footer{text-align:center;color:#7782aa;padding:0 20px 35px;font-size:13px}
@@ -33,7 +33,7 @@ footer{text-align:center;color:#7782aa;padding:0 20px 35px;font-size:13px}
   <p>A colorful mini-game arcade with smooth animations, satisfying effects, and three games built right into one page.</p>
   <nav>
     <button onclick="showGame('snake')">🐍 Snake</button>
-    <button onclick="showGame('candy')">🍬 Candy Match</button>
+    <button onclick="showGame('candy')">🍓 Fruit Match</button>
     <button onclick="showGame('puzzle')">🧩 Puzzle</button>
   </nav>
 </header>
@@ -43,14 +43,14 @@ footer{text-align:center;color:#7782aa;padding:0 20px 35px;font-size:13px}
   <div class="game-head"><h2>🐍 Neon Snake</h2><div class="stats"><span class="stat">Score: <b id="snakeScore">0</b></span><span class="stat">Best: <b id="snakeBest">0</b></span></div></div>
   <div class="board-wrap"><canvas id="snakeCanvas" width="520" height="520"></canvas></div>
   <div class="actions"><button class="primary" onclick="startSnake()">▶ Start / Restart</button></div>
-  <p class="hint">Use arrow keys or WASD. On mobile, use the buttons.</p>
+  <p class="hint">Touch the arrow buttons or swipe directly on the board to move.</p>
   <div class="controls"><span></span><button onclick="changeDir('up')">▲</button><span></span><button onclick="changeDir('left')">◀</button><button onclick="changeDir('down')">▼</button><button onclick="changeDir('right')">▶</button></div>
 </div></section>
 
 <section id="candy" class="game"><div class="panel">
-  <div class="game-head"><h2>🍬 Candy Match</h2><div class="stats"><span class="stat">Score: <b id="candyScore">0</b></span><span class="stat">Moves: <b id="candyMoves">30</b></span></div></div>
+  <div class="game-head"><h2>🍓 Fruit Match</h2><div class="stats"><span class="stat">Score: <b id="candyScore">0</b></span><span class="stat">Moves: <b id="candyMoves">30</b></span></div></div>
   <div class="board-wrap"><div id="candyBoard"></div></div>
-  <p class="hint">Swap neighboring candies to make 3 or more in a row.</p>
+  <p class="hint">Swap neighboring fruits to make 3 or more of the same fruit in a row.</p>
   <div class="actions"><button class="primary" onclick="newCandy()">↻ New Game</button></div>
 </div></section>
 
@@ -78,10 +78,12 @@ function drawSnake(){ctx.clearRect(0,0,520,520);ctx.fillStyle='#07101b';ctx.fill
 if(food){ctx.fillStyle='#ff4fa3';ctx.beginPath();ctx.arc(food.x*cell+13,food.y*cell+13,9,0,Math.PI*2);ctx.fill()}
 snake?.forEach((s,i)=>{ctx.fillStyle=i?'#42e6a4':'#7cffd0';ctx.beginPath();ctx.roundRect(s.x*cell+2,s.y*cell+2,22,22,7);ctx.fill()})}
 document.addEventListener('keydown',e=>{let k=e.key.toLowerCase();if(k==='arrowup'||k==='w')changeDir('up');if(k==='arrowdown'||k==='s')changeDir('down');if(k==='arrowleft'||k==='a')changeDir('left');if(k==='arrowright'||k==='d')changeDir('right');if(k===' '&&document.getElementById('snake').classList.contains('active'))startSnake()});
+let touchStartX=0,touchStartY=0;sc.addEventListener('touchstart',e=>{const t=e.changedTouches[0];touchStartX=t.clientX;touchStartY=t.clientY},{passive:true});sc.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-touchStartX,dy=t.clientY-touchStartY;if(Math.max(Math.abs(dx),Math.abs(dy))<18)return;if(Math.abs(dx)>Math.abs(dy))changeDir(dx>0?'right':'left');else changeDir(dy>0?'down':'up')},{passive:true});
+
 startSnake();
 
 /* CANDY MATCH */
-const CB=8,types=6;let candy=[],selected=null,cScore=0,cMoves=30;
+const CB=8,types=6;const fruits=['🍎','🍊','🍋','🍇','🍓','🍉'];let candy=[],selected=null,cScore=0,cMoves=30;
 function newCandy(){cScore=0;cMoves=30;selected=null;do{candy=Array.from({length:CB*CB},()=>Math.floor(Math.random()*types))}while(findMatches().length);renderCandy()}
 function renderCandy(){let b=$('candyBoard');b.innerHTML='';candy.forEach((v,i)=>{let x=document.createElement('button');x.className='candy c'+v+(selected===i?' selected':'');x.onclick=()=>pickCandy(i);b.appendChild(x)});$('candyScore').textContent=cScore;$('candyMoves').textContent=cMoves}
 function pickCandy(i){if(cMoves<=0)return;if(selected===null){selected=i;renderCandy();return}let a=selected,b=i,ar=Math.floor(a/CB),ac=a%CB,br=Math.floor(b/CB),bc=b%CB;if(Math.abs(ar-br)+Math.abs(ac-bc)!==1){selected=i;renderCandy();return}[candy[a],candy[b]]=[candy[b],candy[a]];let m=findMatches();if(!m.length){[candy[a],candy[b]]=[candy[b],candy[a]]}else{cMoves--;resolveCandy()}selected=null;renderCandy()}

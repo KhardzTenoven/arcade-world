@@ -1,107 +1,348 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>🧠 Memory Match — Bright Arcade</title><style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,Arial,sans-serif;color:#fff}
-body{background:radial-gradient(circle at 15% 10%,#5434b9 0,transparent 30%),radial-gradient(circle at 85% 15%,#008eb4 0,transparent 28%),linear-gradient(135deg,#090d24,#11183a 60%,#080b20);overflow-x:hidden}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.1;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:42px 42px}
-.container{width:min(1150px,92%);margin:auto}.nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}.brand{font-size:24px;font-weight:950;letter-spacing:-.04em}.brand span{color:#67e8ff}.nav a,.btn{color:#fff;text-decoration:none;border:1px solid #ffffff20;background:#ffffff0d;padding:11px 16px;border-radius:14px;font-weight:800;cursor:pointer;transition:.2s}.nav a:hover,.btn:hover{transform:translateY(-2px);background:#ffffff18}
-.hero{text-align:center;padding:75px 0 55px}.eyebrow{display:inline-block;padding:8px 14px;border-radius:999px;background:#ffffff0d;border:1px solid #ffffff18;color:#bceeff;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.12em}.hero h1{font-size:clamp(46px,8vw,86px);line-height:.92;letter-spacing:-.07em;margin:18px 0;background:linear-gradient(90deg,#fff,#75eaff,#ff82c8);-webkit-background-clip:text;color:transparent}.hero p{max-width:680px;margin:auto;color:#bdc7e7;font-size:18px;line-height:1.7}
-.quote{margin:25px auto 0;max-width:700px;padding:18px 22px;border:1px solid #ffffff18;border-radius:20px;background:#ffffff09;backdrop-filter:blur(14px);font-size:20px;font-weight:750}.quote small{display:block;color:#8995bc;font-size:12px;margin-top:7px}
-.games{padding:20px 0 80px}.games h2{text-align:center;font-size:36px;margin-bottom:28px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.card{position:relative;overflow:hidden;min-height:250px;padding:24px;border:1px solid #ffffff18;border-radius:26px;background:linear-gradient(145deg,#ffffff12,#ffffff05);box-shadow:0 25px 70px #0004;transition:.3s}.card:hover{transform:translateY(-8px);border-color:#ffffff35}.icon{font-size:55px;animation:float 3s ease-in-out infinite}.card h3{font-size:25px;margin:12px 0 7px}.card p{color:#aeb9dc;line-height:1.5}.play{display:inline-block;margin-top:12px;background:linear-gradient(90deg,#ff4fa3,#6b63ff);padding:11px 15px;border-radius:13px;text-decoration:none;color:#fff;font-weight:900}.tip{text-align:center;color:#7f8bb1;margin-top:25px}
-@keyframes float{50%{transform:translateY(-8px)}}footer{text-align:center;padding:25px;color:#707ba0;border-top:1px solid #ffffff0d}
-
-.gamepage{height:100dvh;min-height:100vh;overflow:hidden;display:flex;flex-direction:column}.gamebar{height:72px;flex:0 0 72px;display:flex;align-items:center;justify-content:space-between;padding:0 max(18px,4vw);border-bottom:1px solid #ffffff14;background:#080c20dd;backdrop-filter:blur(18px);z-index:5}.gamebar h1{font-size:22px;margin:0}.gamearea{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:16px}.gamebox{width:min(900px,100%);height:min(100%,820px);min-height:0;border:1px solid #ffffff18;border-radius:26px;background:#ffffff09;backdrop-filter:blur(16px);box-shadow:0 25px 80px #0005;padding:18px;display:flex;flex-direction:column}.gamebox h2{text-align:center;margin:2px 0 10px}.stats{text-align:center;color:#bfc9e7;margin-bottom:10px}.board{margin:auto;max-width:100%;max-height:calc(100% - 110px)}
-canvas{display:block;width:min(72vh,78vw,560px);height:min(72vh,78vw,560px);max-width:100%;max-height:calc(100dvh - 210px);border-radius:20px;background:#06101b;border:1px solid #ffffff18}
-.controls{display:flex;justify-content:center;gap:8px;margin-top:10px}.controls button{width:58px;height:48px;border:0;border-radius:13px;background:#ffffff12;color:#fff;font-size:20px;cursor:pointer;touch-action:manipulation}.controls button:active{transform:scale(.94)}
-.touch{color:#8f9bc0;text-align:center;font-size:12px;margin:8px 0 0}
-.choicegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(560px,100%);margin:auto}.choice{aspect-ratio:1;border:0;border-radius:20px;font-size:42px;cursor:pointer;background:#ffffff0b;transition:.15s;box-shadow:inset 0 2px 3px #fff5}.choice:hover{transform:scale(1.04)}.choice.sel{outline:4px solid #fff}.c0{background:#ff537d}.c1{background:#ff9d45}.c2{background:#ffd34d}.c3{background:#65dc7c}.c4{background:#63cfff}.c5{background:#a778ff}
-.puzzle{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;width:min(500px,100%);margin:auto}.tile{aspect-ratio:1;border:0;border-radius:14px;background:linear-gradient(135deg,#43d9ff,#6a62ff);color:#fff;font-weight:950;font-size:clamp(22px,6vw,42px);cursor:pointer}.tile.empty{background:transparent;box-shadow:none;cursor:default}.center{text-align:center}.restart{margin-top:12px}
-.memory{display:grid;gap:9px;width:min(520px,100%);margin:auto}.memory button{aspect-ratio:1;border:0;border-radius:15px;background:linear-gradient(135deg,#4d58a9,#292f68);color:transparent;font-size:32px;cursor:pointer;transition:.2s}.memory button.open{background:#ffffff18;color:#fff}.memory button.matched{background:linear-gradient(135deg,#2abf9c,#1b7968);color:#fff}
-@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.hero{padding-top:45px}.gamebox{padding:12px;border-radius:20px}.gamebar{height:62px;flex-basis:62px}.gamebar h1{font-size:18px}.gamearea{padding:8px}.choicegrid{gap:7px}.memory{gap:6px}.memory button{font-size:24px;border-radius:10px}}
-@media(max-width:480px){.grid{grid-template-columns:1fr}.card{min-height:210px}.gamebox h2{font-size:20px}}
-</style></head><body class="gamepage">
-<header class="gamebar"><a class="btn" href="index.html">← Home</a><h1>🧠 Memory Match</h1><span style="color:#91a0c8;font-size:12px">Bright Arcade</span></header>
-<main class="gamearea"><section class="gamebox"><h2>🧠 Memory Match</h2><div class="stats">Level <b id="lvl">1</b> • Matches: <b id="pairs">0</b>/<span id="totalPairs">4</span></div><div class="board"><div id="board" class="memory"></div><div class="touch">Match all emoji pairs to unlock the next level</div></div><div class="center"><button class="btn restart" onclick="restartGame()">↻ Reset Arcade</button></div></section></main><script>
-const allIcons=['🌈','🚀','🦄','🐼','🍕','🌟','🎈','🐸','🎨','🍔','🍦','⚽'];
-const levels=[
-  {pairs:4, cols:4},  // Level 1: 8 cards (4x2)
-  {pairs:6, cols:4},  // Level 2: 12 cards (4x3)
-  {pairs:8, cols:4},  // Level 3: 16 cards (4x4)
-  {pairs:10, cols:5}  // Level 4: 20 cards (5x4)
-];
-
-let level=0, deck=[], open=[], matched=[];
-
-function initLevel(){
-  const cfg=levels[level]||levels[levels.length-1];
-  const activeIcons=allIcons.slice(0,cfg.pairs);
-  deck=[...activeIcons,...activeIcons].sort(()=>Math.random()-.5);
-  open=[];
-  matched=[];
-  
-  document.getElementById('lvl').textContent=level+1;
-  document.getElementById('pairs').textContent=0;
-  document.getElementById('totalPairs').textContent=cfg.pairs;
-  
-  const b=document.getElementById('board');
-  b.style.gridTemplateColumns=`repeat(${cfg.cols}, 1fr)`;
-  render();
-}
-
-function render(){
-  let b=document.getElementById('board');
-  b.innerHTML='';
-  deck.forEach((v,i)=>{
-    let q=document.createElement('button');
-    let isOpen=open.includes(i);
-    let isMatched=matched.includes(i);
-    
-    q.className=isMatched?'matched':(isOpen?'open':'');
-    q.textContent=(isOpen||isMatched)?v:'';
-    q.onclick=()=>flip(i);
-    b.appendChild(q);
-  });
-  document.getElementById('pairs').textContent=matched.length/2;
-}
-
-function flip(i){
-  if(open.length===2||open.includes(i)||matched.includes(i)) return;
-  open.push(i);
-  render();
-  
-  if(open.length===2){
-    if(deck[open[0]]===deck[open[1]]){
-      let p=[...open];
-      setTimeout(()=>{
-        matched.push(...p);
-        open=[];
-        render();
-        if(matched.length===deck.length){
-          setTimeout(nextLevel,300);
-        }
-      },300);
-    }else{
-      setTimeout(()=>{
-        open=[];
-        render();
-      },650);
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🧠 Memory Match — Bright Arcade</title>
+  <style>
+    * {
+      box-sizing: border-box;
     }
-  }
-}
 
-function nextLevel(){
-  if(level<levels.length-1){
-    alert(`🎉 Level ${level+1} Cleared! Get ready for Level ${level+2}!`);
-    level++;
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, system-ui, Arial, sans-serif;
+      color: #fff;
+    }
+
+    body {
+      background: 
+        radial-gradient(circle at 15% 10%, #5434b9 0, transparent 30%),
+        radial-gradient(circle at 85% 15%, #008eb4 0, transparent 28%),
+        linear-gradient(135deg, #090d24, #11183a 60%, #080b20);
+      overflow-x: hidden;
+    }
+
+    body:before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .1;
+      background-image: radial-gradient(#fff 1px, transparent 1px);
+      background-size: 42px 42px;
+    }
+
+    .container {
+      width: min(1150px, 92%);
+      margin: auto;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 0;
+    }
+
+    .brand {
+      font-size: 24px;
+      font-weight: 950;
+      letter-spacing: -.04em;
+    }
+
+    .brand span {
+      color: #67e8ff;
+    }
+
+    .nav a, .btn {
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid #ffffff20;
+      background: #ffffff0d;
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .nav a:hover, .btn:hover {
+      transform: translateY(-2px);
+      background: #ffffff18;
+    }
+
+    .gamepage {
+      height: 100dvh;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gamebar {
+      height: 72px;
+      flex: 0 0 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 max(18px, 4vw);
+      border-bottom: 1px solid #ffffff14;
+      background: #080c20dd;
+      backdrop-filter: blur(18px);
+      z-index: 5;
+    }
+
+    .gamebar h1 {
+      font-size: 22px;
+      margin: 0;
+    }
+
+    .gamearea {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .gamebox {
+      width: min(900px, 100%);
+      height: min(100%, 820px);
+      min-height: 0;
+      border: 1px solid #ffffff18;
+      border-radius: 26px;
+      background: #ffffff09;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 25px 80px #0005;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gamebox h2 {
+      text-align: center;
+      margin: 2px 0 10px;
+    }
+
+    .stats {
+      text-align: center;
+      color: #bfc9e7;
+      margin-bottom: 10px;
+    }
+
+    .board {
+      margin: auto;
+      max-width: 100%;
+      max-height: calc(100% - 110px);
+    }
+
+    .touch {
+      color: #8f9bc0;
+      text-align: center;
+      font-size: 12px;
+      margin: 8px 0 0;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .restart {
+      margin-top: 12px;
+    }
+
+    .memory {
+      display: grid;
+      gap: 9px;
+      width: min(520px, 100%);
+      margin: auto;
+    }
+
+    .memory button {
+      aspect-ratio: 1;
+      border: 0;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #4d58a9, #292f68);
+      color: transparent;
+      font-size: 32px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .memory button.open {
+      background: #ffffff18;
+      color: #fff;
+    }
+
+    .memory button.matched {
+      background: linear-gradient(135deg, #2abf9c, #1b7968);
+      color: #fff;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #707ba0;
+      border-top: 1px solid #ffffff0d;
+    }
+
+    @media (max-width: 760px) {
+      .gamebox {
+        padding: 12px;
+        border-radius: 20px;
+      }
+      .gamebar {
+        height: 62px;
+        flex-basis: 62px;
+      }
+      .gamebar h1 {
+        font-size: 18px;
+      }
+      .gamearea {
+        padding: 8px;
+      }
+      .memory {
+        gap: 6px;
+      }
+      .memory button {
+        font-size: 24px;
+        border-radius: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .gamebox h2 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body class="gamepage">
+
+  <header class="gamebar">
+    <a class="btn" href="index.html">← Home</a>
+    <h1>🧠 Memory Match</h1>
+    <span style="color: #91a0c8; font-size: 12px;">Bright Arcade</span>
+  </header>
+
+  <main class="gamearea">
+    <section class="gamebox">
+      <h2>🧠 Memory Match</h2>
+      <div class="stats">
+        Level <b id="lvl">1</b> • Matches: <b id="pairs">0</b>/<span id="totalPairs">4</span>
+      </div>
+      <div class="board">
+        <div id="board" class="memory"></div>
+        <div class="touch">Match all emoji pairs to unlock the next level</div>
+      </div>
+      <div class="center">
+        <button class="btn restart" onclick="restartGame()">↻ Reset Arcade</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const allIcons = ['🌈', '🚀', '🦄', '🐼', '🍕', '🌟', '🎈', '🐸', '🎨', '🍔', '🍦', '⚽'];
+    
+    const levels = [
+      { pairs: 4, cols: 4 },  // Level 1: 8 cards
+      { pairs: 6, cols: 4 },  // Level 2: 12 cards
+      { pairs: 8, cols: 4 },  // Level 3: 16 cards
+      { pairs: 10, cols: 5 }  // Level 4: 20 cards
+    ];
+
+    let level = 0;
+    let deck = [];
+    let open = [];
+    let matched = [];
+
+    function initLevel() {
+      const cfg = levels[level] || levels[levels.length - 1];
+      const activeIcons = allIcons.slice(0, cfg.pairs);
+      
+      deck = [...activeIcons, ...activeIcons].sort(() => Math.random() - 0.5);
+      open = [];
+      matched = [];
+      
+      document.getElementById('lvl').textContent = level + 1;
+      document.getElementById('pairs').textContent = 0;
+      document.getElementById('totalPairs').textContent = cfg.pairs;
+      
+      const boardElement = document.getElementById('board');
+      boardElement.style.gridTemplateColumns = `repeat(${cfg.cols}, 1fr)`;
+      
+      render();
+    }
+
+    function render() {
+      const boardElement = document.getElementById('board');
+      boardElement.innerHTML = '';
+      
+      deck.forEach((icon, index) => {
+        const button = document.createElement('button');
+        const isOpen = open.includes(index);
+        const isMatched = matched.includes(index);
+        
+        button.className = isMatched ? 'matched' : (isOpen ? 'open' : '');
+        button.textContent = (isOpen || isMatched) ? icon : '';
+        button.onclick = () => flip(index);
+        
+        boardElement.appendChild(button);
+      });
+      
+      document.getElementById('pairs').textContent = matched.length / 2;
+    }
+
+    function flip(index) {
+      // Prevent flipping if 2 cards are open, or if card is already open/matched
+      if (open.length === 2 || open.includes(index) || matched.includes(index)) {
+        return;
+      }
+      
+      open.push(index);
+      render();
+      
+      if (open.length === 2) {
+        if (deck[open[0]] === deck[open[1]]) {
+          const matchedPair = [...open];
+          setTimeout(() => {
+            matched.push(...matchedPair);
+            open = [];
+            render();
+            if (matched.length === deck.length) {
+              setTimeout(nextLevel, 300);
+            }
+          }, 300);
+        } else {
+          setTimeout(() => {
+            open = [];
+            render();
+          }, 650);
+        }
+      }
+    }
+
+    function nextLevel() {
+      if (level < levels.length - 1) {
+        alert(`🎉 Level ${level + 1} Cleared! Moving to Level ${level + 2}!`);
+        level++;
+        initLevel();
+      } else {
+        alert('🏆 CONGRATULATIONS! You completed all Memory Match levels!');
+        restartGame();
+      }
+    }
+
+    function restartGame() {
+      level = 0;
+      initLevel();
+    }
+
+    // Initialize game on script load
     initLevel();
-  }else{
-    alert('🏆 CONGRATULATIONS! You completed all Memory Match levels!');
-    restartGame();
-  }
-}
-
-function restartGame(){
-  level=0;
-  initLevel();
-}
-
-initLevel();
-</script></body></html>
+  </script>
+</body>
+</html>

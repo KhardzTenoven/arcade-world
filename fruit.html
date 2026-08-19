@@ -270,12 +270,12 @@
     const allFruits = ['🍓', '🍋', '🍇', '🍉', '🍊', '🍏', '🍍', '🍒', '🍌', '🫐', '🥝', '🍑', '🥑', '🍐', '🥭'];
     
     const levelConfigs = [
-      { size: 6, fruitTypes: 5, target: 200, moves: 15 },  // Level 1
-      { size: 6, fruitTypes: 6, target: 350, moves: 15 },  // Level 2
-      { size: 7, fruitTypes: 8, target: 500, moves: 18 },  // Level 3
-      { size: 7, fruitTypes: 10, target: 750, moves: 20 }, // Level 4
-      { size: 8, fruitTypes: 12, target: 1000, moves: 22 },// Level 5
-      { size: 8, fruitTypes: 15, target: 1500, moves: 25 } // Level 6
+      { size: 6, fruitTypes: 5, target: 200, moves: 15 },
+      { size: 6, fruitTypes: 6, target: 350, moves: 15 },
+      { size: 7, fruitTypes: 8, target: 500, moves: 18 },
+      { size: 7, fruitTypes: 10, target: 750, moves: 20 },
+      { size: 8, fruitTypes: 12, target: 1000, moves: 22 },
+      { size: 8, fruitTypes: 15, target: 1500, moves: 25 }
     ];
 
     let currentLevel = 0;
@@ -286,12 +286,11 @@
     let multiplier = 1;
     let isProcessing = false;
 
-    // Swipe tracking variables
     let startX = 0;
     let startY = 0;
     let dragIndex = null;
 
-    // Audio Engine
+    // Audio Engine Variables
     let audioCtx = null;
     let audioEnabled = false;
     let bgMusicTimer = null;
@@ -333,8 +332,112 @@
       } catch (e) {}
     }
 
+    // Dynamic Pitch-Sweep Match Sound
     function playMatchSound(chain = 1) {
-      playTone(320 + (chain * 100), 'triangle', 0.2, 0.2);
+      if (!audioEnabled || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        const baseFreq = 240 + (chain * 90);
+        
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(baseFreq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 2.2, audioCtx.currentTime + 0.18);
+
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.18);
+      } catch (e) {}
+    }
+
+    // Procedural Percussion (Hi-Hat Ticks)
+    function playNoisePercussion(duration = 0.04) {
+      if (!audioEnabled || !audioCtx) return;
+      try {
+        const bufferSize = audioCtx.sampleRate * duration;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+
+        const whiteNoise = audioCtx.createBufferSource();
+        whiteNoise.buffer = buffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 6000;
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+        whiteNoise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        whiteNoise.start();
+      } catch (e) {}
+    }
+
+    // Victory Flourish Jingle
+    function playVictoryJingle() {
+      if (!audioEnabled || !audioCtx) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, i) => {
+        setTimeout(() => {
+          playTone(freq, 'triangle', 0.3, 0.15);
+        }, i * 90);
+      });
+    }
+
+    // Dynamic Synthwave Arcade Background Music
+    const chordProgression = [
+      [261.63, 329.63, 392.00], // C Major
+      [220.00, 261.63, 329.63], // A Minor
+      [174.61, 220.00, 261.63], // F Major
+      [196.00, 246.94, 293.66]  // G Major
+    ];
+
+    function startBgMusic() {
+      if (bgMusicTimer) clearInterval(bgMusicTimer);
+      
+      let beat = 0;
+
+      bgMusicTimer = setInterval(() => {
+        if (!audioEnabled) return;
+
+        const currentChord = chordProgression[Math.floor(beat / 8) % chordProgression.length];
+        const arpeggioNote = currentChord[beat % currentChord.length];
+
+        // High energetic lead synth
+        playTone(arpeggioNote * 2, 'square', 0.1, 0.025);
+
+        // Warm supporting bass pulse
+        if (beat % 4 === 0) {
+          playTone(currentChord[0] / 2, 'sawtooth', 0.25, 0.05);
+        }
+
+        // Rhythmic percussive tick
+        if (beat % 2 === 1) {
+          playNoisePercussion(0.04);
+        }
+
+        beat++;
+      }, 130);
+    }
+
+    function stopBgMusic() {
+      if (bgMusicTimer) {
+        clearInterval(bgMusicTimer);
+        bgMusicTimer = null;
+      }
     }
 
     function speakComplement(text) {
@@ -349,36 +452,6 @@
         utterance.rate = 1.1;
         utterance.pitch = 1.3;
         window.speechSynthesis.speak(utterance);
-      }
-    }
-
-    function startBgMusic() {
-      if (bgMusicTimer) clearInterval(bgMusicTimer);
-      
-      // Melody note frequencies (Hz) & bassline notes
-      const melody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 440.00, 349.23];
-      const bass = [130.81, 164.81, 196.00, 220.00];
-      let step = 0;
-
-      bgMusicTimer = setInterval(() => {
-        if (!audioEnabled) return;
-        
-        // Lead melody synth
-        playTone(melody[step % melody.length], 'sine', 0.22, 0.05);
-        
-        // Deep ambient bassline every 2 beats
-        if (step % 2 === 0) {
-          playTone(bass[Math.floor(step / 2) % bass.length], 'triangle', 0.35, 0.08);
-        }
-
-        step++;
-      }, 350);
-    }
-
-    function stopBgMusic() {
-      if (bgMusicTimer) {
-        clearInterval(bgMusicTimer);
-        bgMusicTimer = null;
       }
     }
 
@@ -495,6 +568,7 @@
         await resolveMatches();
 
         if (score >= targetScore) {
+          playVictoryJingle();
           speakComplement('LEVEL COMPLETED!');
           setTimeout(() => {
             if (currentLevel < levelConfigs.length - 1) {

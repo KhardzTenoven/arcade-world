@@ -131,7 +131,8 @@
       
       .grid{
         display:grid;
-        grid-template-columns:repeat(4,1fr);gap:18px;
+        grid-template-columns:repeat(3,1fr);
+        gap:18px;
       }
       
       .card{
@@ -144,6 +145,9 @@
         background:linear-gradient(145deg,#ffffff12,#ffffff05);
         box-shadow:0 25px 70px #0004;
         transition:.3s;
+        display:flex;
+        flex-direction:column;
+        justify-content:space-between;
       }
       
       .card:hover{
@@ -174,6 +178,7 @@
         text-decoration:none;
         color:#fff;
         font-weight:900;
+        align-self:flex-start;
       }
       
       .tip{
@@ -192,31 +197,31 @@
         border-top:1px solid #ffffff0d;
       }
 
-.gamepage{
-  height:100dvh;
-  min-height:100vh;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-}
-      
-.gamebar{
-  height:72px;
-  flex:0 0 72px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 max(18px,4vw);
-  border-bottom:1px solid #ffffff14;
-  background:#080c20dd;
-  backdrop-filter:blur(18px);
-  z-index:5;
-}
-      
-.gamebar h1{
-  font-size:22px;
-  margin:0;
-}
+      .gamepage{
+        height:100dvh;
+        min-height:100vh;
+        overflow:hidden;
+        display:flex;
+        flex-direction:column;
+      }
+            
+      .gamebar{
+        height:72px;
+        flex:0 0 72px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:0 max(18px,4vw);
+        border-bottom:1px solid #ffffff14;
+        background:#080c20dd;
+        backdrop-filter:blur(18px);
+        z-index:5;
+      }
+            
+      .gamebar h1{
+        font-size:22px;
+        margin:0;
+      }
       .gamearea{
         flex:1;
         min-height:0;
@@ -251,14 +256,12 @@
         margin-bottom:10px;
       }
       
-      
       .board{
         margin:auto;
         max-width:100%;
         max-height:calc(100% - 110px);
       }
       
-
       canvas{
         display:block;
         width:min(72vh,78vw,560px);
@@ -269,7 +272,6 @@
         background:#06101b;
         border:1px solid #ffffff18;
       }
-      
 
       .controls{
         display:flex;
@@ -288,13 +290,11 @@
         font-size:20px;
         cursor:pointer;
         touch-action:manipulation;
-      
       }
       
       .controls button:active{
         transform:scale(.94);
       }
-      
 
       .touch{
         color:#8f9bc0;
@@ -302,7 +302,6 @@
         font-size:12px;
         margin:8px 0 0;
       }
-      
 
       .choicegrid{
         display:grid;
@@ -330,31 +329,13 @@
         outline:4px solid #fff;
       }
       
-      .c0{
-        background:#ff537d;
-      }
-      
-      .c1{
-        background:#ff9d45;
-      }
-      
-      .c2{
-        background:#ffd34d;
-      }
-      
-      .c3{
-        background:#65dc7c;
-      }
-      
-      .c4{
-        background:#63cfff;
-      }
-      
-      .c5{
-        background:#a778ff;
-      }
+      .c0{background:#ff537d;}
+      .c1{background:#ff9d45;}
+      .c2{background:#ffd34d;}
+      .c3{background:#65dc7c;}
+      .c4{background:#63cfff;}
+      .c5{background:#a778ff;}
 
-      
       .puzzle{
         display:grid;
         grid-template-columns:repeat(4,1fr);
@@ -380,14 +361,8 @@
         cursor:default;
       }
       
-      .center{
-        text-align:center;
-      }
-      
-      .restart{
-        margin-top:12px;
-      }
-      
+      .center{text-align:center;}
+      .restart{margin-top:12px;}
 
       .memory{
         display:grid;
@@ -418,69 +393,100 @@
         color:#fff
       }
 
-@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.hero{padding-top:45px}.gamebox{padding:12px;border-radius:20px}.gamebar{height:62px;flex-basis:62px}.gamebar h1{font-size:18px}.gamearea{padding:8px}.choicegrid{gap:7px}.memory{gap:6px}}
-@media(max-width:480px){.grid{grid-template-columns:1fr}.card{min-height:210px}.gamebox h2{font-size:20px}}
-</style>
-  
-</head>
-<body>
+      @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+      @media(max-width:760px){.hero{padding-top:45px}.gamebox{padding:12px;border-radius:20px}.gamebar{height:62px;flex-basis:62px}.gamebar h1{font-size:18px}.gamearea{padding:8px}.choicegrid{gap:7px}.memory{gap:6px}}
+      @media(max-width:520px){.grid{grid-template-columns:1fr}.card{min-height:210px}.gamebox h2{font-size:20px}}
+    </style>
+  </head>
+  <body>
 
-  <div class="container">
-    <nav class="nav">
-      <div class="brand">Bright<span>Arcade</span> ✦</div><a href="#games">Explore Games</a></nav>
+    <div class="container">
+      <nav class="nav">
+        <div class="brand">Bright<span>Arcade</span> ✦</div>
+        <a href="#games">Explore Games</a>
+      </nav>
 
-    <section class="hero">
-      <span class="eyebrow">Your happy place to play</span><h1>Play. Relax. Grow.</h1><p>Take a quick break, challenge yourself, and have fun. Pick a game below and jump straight into a distraction-free play screen.</p>
+      <section class="hero">
+        <span class="eyebrow">Your happy place to play</span>
+        <h1>Play. Relax. Grow.</h1>
+        <p>Take a quick break, challenge yourself, and have fun. Pick a game below and jump straight into a distraction-free play screen.</p>
 
-      <div class="quote" id="quote">“Every small step is still progress.”<small>— Daily reminder</small>
-      </div>
+        <div class="quote" id="quote">
+          “Every small step is still progress.”
+          <small>— Daily reminder</small>
+        </div>
+      </section>
+
+      <section class="games" id="games">
+        <h2>Choose Your Game</h2>
+        <div class="grid">
+
+          <div class="card">
+            <div>
+              <div class="icon">🐍</div>
+              <h3>Neon Snake</h3>
+              <p>Guide your glowing snake, collect food and beat your best score.</p>
+            </div>
+            <a class="play" href="snake.html">Play Snake →</a>
+          </div>
+
+          <div class="card">
+            <div>
+              <div class="icon">🍓</div>
+              <h3>Fruit Match</h3>
+              <p>Swap colorful fruits, make matches and build your score.</p>
+            </div>
+            <a class="play" href="fruit.html">Play Fruit Match →</a>
+          </div>
+
+          <div class="card">
+            <div>
+              <div class="icon">🧩</div>
+              <h3>15 Puzzle</h3>
+              <p>Slide the tiles into order. Simple to learn, satisfying to master.</p>
+            </div>
+            <a class="play" href="puzzle.html">Play Puzzle →</a>
+          </div>
+
+          <div class="card">
+            <div>
+              <div class="icon">🧠</div>
+              <h3>Memory Match</h3>
+              <p>Flip cards, remember the pairs and train your memory.</p>
+            </div>
+            <a class="play" href="memory.html">Play Memory →</a>
+          </div>
+
+          <div class="card">
+            <div>
+              <div class="icon">🏎️</div>
+              <h3>Neon Turbo</h3>
+              <p>Dodge obstacles, grab shiny coins, and race at high speeds.</p>
+            </div>
+            <a class="play" href="racing.html">Play Racing →</a>
+          </div>
+
+          <div class="card">
+            <div>
+              <div class="icon">🚀</div>
+              <h3>Neon Galaxy</h3>
+              <p>Fly through space, fire plasma cannons, and destroy alien fleets.</p>
+            </div>
+            <a class="play" href="shooter.html">Play Shooter →</a>
+          </div>
+
+        </div>
+        
+        <p class="tip">💡 Tip: Play for a few minutes, then come back whenever you need a fresh challenge.</p>
+      </section>
+    </div>
     
-    </section>
+    <footer>Bright Arcade • Made for smooth, friendly play</footer>
 
-    <section class="games" id="games">
-      <h2>Choose Your Game</h2>
-      <div class="grid">
-
-        <div class="card">
-          <div class="icon">🐍</div>
-          <h3>Neon Snake</h3>
-          <p>Guide your glowing snake, collect food and beat your best score.</p>
-          <a class="play" href="snake.html">Play Snake →</a>
-        </div>
-        
-
-        <div class="card">
-          <div class="icon">🍓</div>
-          <h3>Fruit Match</h3>
-          <p>Swap colorful fruits, make matches and build your score.</p>
-          <a class="play" href="fruit.html">Play Fruit Match →</a>
-        </div>
-
-        
-<div class="card">
-  <div class="icon">🧩</div>
-  <h3>15 Puzzle</h3>
-  <p>Slide the tiles into order. Simple to learn, satisfying to master.</p>
-  <a class="play" href="puzzle.html">Play Puzzle →</a>
-</div>
-        
-
-        <div class="card">
- 
-          <div class="icon">🧠</div>
-          <h3>Memory Match</h3>
-          <p>Flip cards, remember the pairs and train your memory.</p>
-          <a class="play" href="memory.html">Play Memory →</a>
-        </div>
-</div>
-      
-      <p class="tip">💡 Tip: Play for a few minutes, then come back whenever you need a fresh challenge.</p>
-    </section>
-  </div>
-  
-<footer>Bright Arcade • Made for smooth, friendly play</footer>
-<script>
-  const q=[["“Success is the sum of small efforts, repeated.”","— Daily reminder"],["“You can do hard things.”","— Daily reminder"],["“Progress, not perfection.”","— Daily reminder"],["“A little practice today makes tomorrow easier.”","— Daily reminder"],["“Believe you can, then take the first step.”","— Daily reminder"]];
-  let i=Math.floor(Math.random()*q.length);document.getElementById('quote').innerHTML=q[i][0]+"<small>"+q[i][1]+"</small>";</script>
-</body>
+    <script>
+      const q=[["“Success is the sum of small efforts, repeated.”","— Daily reminder"],["“You can do hard things.”","— Daily reminder"],["“Progress, not perfection.”","— Daily reminder"],["“A little practice today makes tomorrow easier.”","— Daily reminder"],["“Believe you can, then take the first step.”","— Daily reminder"]];
+      let i=Math.floor(Math.random()*q.length);
+      document.getElementById('quote').innerHTML=q[i][0]+"<small>"+q[i][1]+"</small>";
+    </script>
+  </body>
 </html>

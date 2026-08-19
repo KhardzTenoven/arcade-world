@@ -202,243 +202,256 @@
 
   <script>
     const C = document.getElementById('board'),
-      x = C.getContext('2d'),
-      N = 20;
+  x = C.getContext('2d'),
+  N = 20;
 
-    let s, f, gemsList = [], d, nd, score = 0, gems = 0, skinLevel = 1, timer;
-    let isDead = false;
-    let speed = 105;
+let s, f, gemsList = [], d, nd, score = 0, gems = 0, skinLevel = 1, timer;
+let isDead = false;
 
-    const speeds = {
-      easy: 150,
-      medium: 105,
-      hard: 75,
-      legendary: 45
+// Speed configuration (ms per tick)
+const BASE_SPEEDS = {
+  easy: 180,
+  medium: 140,
+  hard: 100,
+  legendary: 70
+};
+
+const MIN_SPEEDS = {
+  easy: 80,
+  medium: 50,
+  hard: 35,
+  legendary: 20
+};
+
+let currentBaseSpeed = BASE_SPEEDS.medium;
+let currentMinSpeed = MIN_SPEEDS.medium;
+
+const dragonSkins = [
+  { head: '#9affdc', body: '#42e6a4', wing: '#ff82c8' },
+  { head: '#75eaff', body: '#008eb4', wing: '#ffd34d' },
+  { head: '#ffd34d', body: '#ff9d45', wing: '#ff537d' },
+  { head: '#a778ff', body: '#5434b9', wing: '#65dc7c' }
+];
+
+function changeDifficulty(val) {
+  currentBaseSpeed = BASE_SPEEDS[val] || BASE_SPEEDS.medium;
+  currentMinSpeed = MIN_SPEEDS[val] || MIN_SPEEDS.medium;
+  if (!isDead) start();
+}
+
+function calculateCurrentSpeed() {
+  // Speed increases (interval decreases) as score grows
+  let speedDecrease = Math.floor(score / 20) * 5;
+  return Math.max(currentMinSpeed, currentBaseSpeed - speedDecrease);
+}
+
+function updateGameLoop() {
+  clearInterval(timer);
+  let speed = calculateCurrentSpeed();
+  timer = setInterval(tick, speed);
+}
+
+function start() {
+  clearInterval(timer);
+  isDead = false;
+  document.getElementById('reviveBtn').style.display = 'none';
+  s = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+  d = { x: 1, y: 0 };
+  nd = d;
+  score = 0;
+  document.getElementById('score').textContent = score;
+  placeFood();
+  gemsList = [];
+  draw();
+  updateGameLoop();
+}
+
+function placeFood() {
+  do {
+    f = {
+      x: Math.floor(Math.random() * N),
+      y: Math.floor(Math.random() * N)
     };
+  } while (s.some(a => a.x === f.x && a.y === f.y));
 
-    const dragonSkins = [
-      { head: '#9affdc', body: '#42e6a4', wing: '#ff82c8' },
-      { head: '#75eaff', body: '#008eb4', wing: '#ffd34d' },
-      { head: '#ffd34d', body: '#ff9d45', wing: '#ff537d' },
-      { head: '#a778ff', body: '#5434b9', wing: '#65dc7c' }
-    ];
+  if (Math.random() < 0.35 && gemsList.length < 2) {
+    let g;
+    do {
+      g = { x: Math.floor(Math.random() * N), y: Math.floor(Math.random() * N) };
+    } while (s.some(a => a.x === g.x && a.y === g.y) || (f.x === g.x && f.y === g.y));
+    gemsList.push(g);
+  }
+}
 
-    function changeDifficulty(val) {
-      speed = speeds[val] || 105;
-      if (!isDead) start();
+function go(k) {
+  let m = {
+    up: { x: 0, y: -1 },
+    down: { x: 0, y: 1 },
+    left: { x: -1, y: 0 },
+    right: { x: 1, y: 0 }
+  }[k];
+  if (m && !(m.x === -d.x && m.y === -d.y)) nd = m;
+}
+
+function tick() {
+  d = nd;
+  let h = { x: s[0].x + d.x, y: s[0].y + d.y };
+
+  if (h.x < 0 || h.y < 0 || h.x >= N || h.y >= N || s.some(a => a.x === h.x && a.y === h.y)) {
+    clearInterval(timer);
+    isDead = true;
+    document.getElementById('reviveBtn').style.display = 'inline-block';
+    return;
+  }
+
+  s.unshift(h);
+
+  // Eat Food
+  if (h.x === f.x && h.y === f.y) {
+    score += 10;
+    document.getElementById('score').textContent = score;
+    placeFood();
+    updateGameLoop(); // Dynamically accelerates the game loop
+  } else {
+    s.pop();
+  }
+
+  // Collect Gems
+  gemsList = gemsList.filter(g => {
+    if (h.x === g.x && h.y === g.y) {
+      gems += 1;
+      document.getElementById('gems').textContent = gems;
+      return false;
     }
+    return true;
+  });
 
-    function start() {
-      clearInterval(timer);
-      isDead = false;
-      document.getElementById('reviveBtn').style.display = 'none';
-      s = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
-      d = { x: 1, y: 0 };
-      nd = d;
-      score = 0;
-      document.getElementById('score').textContent = score;
-      placeFood();
-      gemsList = [];
-      draw();
-      timer = setInterval(tick, speed);
+  draw();
+}
+
+function revive() {
+  if (gems >= 5 && isDead) {
+    gems -= 5;
+    document.getElementById('gems').textContent = gems;
+    isDead = false;
+    document.getElementById('reviveBtn').style.display = 'none';
+
+    let head = s[0];
+    if (head.x < 0) head.x = 0;
+    if (head.x >= N) head.x = N - 1;
+    if (head.y < 0) head.y = 0;
+    if (head.y >= N) head.y = N - 1;
+
+    updateGameLoop();
+  } else if (gems < 5) {
+    alert("You need at least 5 Gems to Revive!");
+  }
+}
+
+function upgradeSkin() {
+  let cost = skinLevel * 10;
+  if (gems >= cost && skinLevel < dragonSkins.length) {
+    gems -= cost;
+    skinLevel++;
+    document.getElementById('gems').textContent = gems;
+    document.getElementById('skinLevel').textContent = skinLevel;
+    document.getElementById('upgradeCost').textContent = skinLevel * 10;
+    draw();
+  } else if (skinLevel >= dragonSkins.length) {
+    alert("Max Dragon Level Reached!");
+  } else {
+    alert(`Need ${cost} Gems to level up dragon skin!`);
+  }
+}
+
+function draw() {
+  x.fillStyle = '#06101b';
+  x.fillRect(0, 0, 520, 520);
+
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      x.fillStyle = (i + j) % 2 ? '#0a1622' : '#09131f';
+      x.fillRect(i * 26, j * 26, 26, 26);
     }
+  }
 
-    function placeFood() {
-      do {
-        f = {
-          x: Math.floor(Math.random() * N),
-          y: Math.floor(Math.random() * N)
-        };
-      } while (s.some(a => a.x === f.x && a.y === f.y));
+  if (f) {
+    x.fillStyle = '#ff4fa3';
+    x.beginPath();
+    x.arc(f.x * 26 + 13, f.y * 26 + 13, 9, 0, 7);
+    x.fill();
+  }
 
-      // Randomly spawn a gem
-      if (Math.random() < 0.35 && gemsList.length < 2) {
-        let g;
-        do {
-          g = { x: Math.floor(Math.random() * N), y: Math.floor(Math.random() * N) };
-        } while (s.some(a => a.x === g.x && a.y === g.y) || (f.x === g.x && f.y === g.y));
-        gemsList.push(g);
+  gemsList.forEach(g => {
+    x.fillStyle = '#63cfff';
+    x.beginPath();
+    x.moveTo(g.x * 26 + 13, g.y * 26 + 3);
+    x.lineTo(g.x * 26 + 23, g.y * 26 + 13);
+    x.lineTo(g.x * 26 + 13, g.y * 26 + 23);
+    x.lineTo(g.x * 26 + 3, g.y * 26 + 13);
+    x.closePath();
+    x.fill();
+  });
+
+  let skin = dragonSkins[skinLevel - 1];
+  s?.forEach((a, i) => {
+    if (i === 0) {
+      x.fillStyle = skin.head;
+      x.beginPath();
+      x.arc(a.x * 26 + 13, a.y * 26 + 13, 12, 0, Math.PI * 2);
+      x.fill();
+
+      x.fillStyle = skin.wing;
+      x.fillRect(a.x * 26 + 4, a.y * 26 + 2, 5, 5);
+      x.fillRect(a.x * 26 + 17, a.y * 26 + 2, 5, 5);
+    } else {
+      x.fillStyle = skin.body;
+      x.beginPath();
+      x.roundRect(a.x * 26 + 3, a.y * 26 + 3, 20, 20, 6);
+      x.fill();
+
+      if (i % 2 === 1) {
+        x.fillStyle = skin.wing;
+        x.fillRect(a.x * 26 - 2, a.y * 26 + 8, 4, 10);
+        x.fillRect(a.x * 26 + 24, a.y * 26 + 8, 4, 10);
       }
     }
+  });
+}
 
-    function go(k) {
-      let m = {
-        up: { x: 0, y: -1 },
-        down: { x: 0, y: 1 },
-        left: { x: -1, y: 0 },
-        right: { x: 1, y: 0 }
-      }[k];
-      if (m && !(m.x === -d.x && m.y === -d.y)) nd = m;
+document.addEventListener('keydown', e => {
+  let k = e.key.toLowerCase();
+  if (k === 'arrowup' || k === 'w') go('up');
+  if (k === 'arrowdown' || k === 's') go('down');
+  if (k === 'arrowleft' || k === 'a') go('left');
+  if (k === 'arrowright' || k === 'd') go('right');
+});
+
+let tx, ty;
+C.addEventListener('touchstart', e => {
+  tx = e.changedTouches[0].clientX;
+  ty = e.changedTouches[0].clientY;
+}, { passive: true });
+
+C.addEventListener('touchend', e => {
+  let a = e.changedTouches[0],
+    dx = a.clientX - tx,
+    dy = a.clientY - ty;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 15) {
+    let rect = C.getBoundingClientRect();
+    let tapX = a.clientX - rect.left - (rect.width / 2);
+    let tapY = a.clientY - rect.top - (rect.height / 2);
+    if (Math.abs(tapX) > Math.abs(tapY)) {
+      go(tapX > 0 ? 'right' : 'left');
+    } else {
+      go(tapY > 0 ? 'down' : 'up');
     }
+    return;
+  }
+  go(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+}, { passive: true });
 
-    function tick() {
-      d = nd;
-      let h = { x: s[0].x + d.x, y: s[0].y + d.y };
-
-      if (h.x < 0 || h.y < 0 || h.x >= N || h.y >= N || s.some(a => a.x === h.x && a.y === h.y)) {
-        clearInterval(timer);
-        isDead = true;
-        document.getElementById('reviveBtn').style.display = 'inline-block';
-        return;
-      }
-
-      s.unshift(h);
-
-      // Eat Food
-      if (h.x === f.x && h.y === f.y) {
-        score += 10;
-        document.getElementById('score').textContent = score;
-        placeFood();
-      } else {
-        s.pop();
-      }
-
-      // Collect Gems
-      gemsList = gemsList.filter(g => {
-        if (h.x === g.x && h.y === g.y) {
-          gems += 1;
-          document.getElementById('gems').textContent = gems;
-          return false;
-        }
-        return true;
-      });
-
-      draw();
-    }
-
-    function revive() {
-      if (gems >= 5 && isDead) {
-        gems -= 5;
-        document.getElementById('gems').textContent = gems;
-        isDead = false;
-        document.getElementById('reviveBtn').style.display = 'none';
-        
-        // Push head to a valid direction
-        let head = s[0];
-        if (head.x < 0) head.x = 0;
-        if (head.x >= N) head.x = N - 1;
-        if (head.y < 0) head.y = 0;
-        if (head.y >= N) head.y = N - 1;
-
-        timer = setInterval(tick, speed);
-      } else if (gems < 5) {
-        alert("You need at least 5 Gems to Revive!");
-      }
-    }
-
-    function upgradeSkin() {
-      let cost = skinLevel * 10;
-      if (gems >= cost && skinLevel < dragonSkins.length) {
-        gems -= cost;
-        skinLevel++;
-        document.getElementById('gems').textContent = gems;
-        document.getElementById('skinLevel').textContent = skinLevel;
-        document.getElementById('upgradeCost').textContent = skinLevel * 10;
-        draw();
-      } else if (skinLevel >= dragonSkins.length) {
-        alert("Max Dragon Level Reached!");
-      } else {
-        alert(`Need ${cost} Gems to level up dragon skin!`);
-      }
-    }
-
-    function draw() {
-      x.fillStyle = '#06101b';
-      x.fillRect(0, 0, 520, 520);
-
-      // Grid
-      for (let i = 0; i < N; i++) {
-        for (let j = 0; j < N; j++) {
-          x.fillStyle = (i + j) % 2 ? '#0a1622' : '#09131f';
-          x.fillRect(i * 26, j * 26, 26, 26);
-        }
-      }
-
-      // Food
-      if (f) {
-        x.fillStyle = '#ff4fa3';
-        x.beginPath();
-        x.arc(f.x * 26 + 13, f.y * 26 + 13, 9, 0, 7);
-        x.fill();
-      }
-
-      // Gems
-      gemsList.forEach(g => {
-        x.fillStyle = '#63cfff';
-        x.beginPath();
-        x.moveTo(g.x * 26 + 13, g.y * 26 + 3);
-        x.lineTo(g.x * 26 + 23, g.y * 26 + 13);
-        x.lineTo(g.x * 26 + 13, g.y * 26 + 23);
-        x.lineTo(g.x * 26 + 3, g.y * 26 + 13);
-        x.closePath();
-        x.fill();
-      });
-
-      // Dragon
-      let skin = dragonSkins[skinLevel - 1];
-      s?.forEach((a, i) => {
-        if (i === 0) {
-          // Dragon Head
-          x.fillStyle = skin.head;
-          x.beginPath();
-          x.arc(a.x * 26 + 13, a.y * 26 + 13, 12, 0, Math.PI * 2);
-          x.fill();
-
-          // Dragon Horns
-          x.fillStyle = skin.wing;
-          x.fillRect(a.x * 26 + 4, a.y * 26 + 2, 5, 5);
-          x.fillRect(a.x * 26 + 17, a.y * 26 + 2, 5, 5);
-        } else {
-          // Dragon Body & Wings
-          x.fillStyle = skin.body;
-          x.beginPath();
-          x.roundRect(a.x * 26 + 3, a.y * 26 + 3, 20, 20, 6);
-          x.fill();
-
-          if (i % 2 === 1) {
-            x.fillStyle = skin.wing;
-            x.fillRect(a.x * 26 - 2, a.y * 26 + 8, 4, 10);
-            x.fillRect(a.x * 26 + 24, a.y * 26 + 8, 4, 10);
-          }
-        }
-      });
-    }
-
-    document.addEventListener('keydown', e => {
-      let k = e.key.toLowerCase();
-      if (k === 'arrowup' || k === 'w') go('up');
-      if (k === 'arrowdown' || k === 's') go('down');
-      if (k === 'arrowleft' || k === 'a') go('left');
-      if (k === 'arrowright' || k === 'd') go('right');
-    });
-
-    // Touch Swipe Control
-    let tx, ty;
-    C.addEventListener('touchstart', e => {
-      tx = e.changedTouches[0].clientX;
-      ty = e.changedTouches[0].clientY;
-    }, { passive: true });
-
-    C.addEventListener('touchend', e => {
-      let a = e.changedTouches[0],
-        dx = a.clientX - tx,
-        dy = a.clientY - ty;
-      if (Math.max(Math.abs(dx), Math.abs(dy)) < 15) {
-        // Direct tap relative direction on canvas
-        let rect = C.getBoundingClientRect();
-        let tapX = a.clientX - rect.left - (rect.width / 2);
-        let tapY = a.clientY - rect.top - (rect.height / 2);
-        if (Math.abs(tapX) > Math.abs(tapY)) {
-          go(tapX > 0 ? 'right' : 'left');
-        } else {
-          go(tapY > 0 ? 'down' : 'up');
-        }
-        return;
-      }
-      go(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
-    }, { passive: true });
-
-    start();
+start();
   </script>
 </body>
 </html>

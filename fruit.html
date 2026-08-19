@@ -187,7 +187,6 @@
       margin-top: 12px;
     }
 
-    /* Complement Banner overlay styling */
     .complement-popup {
       position: absolute;
       top: 40%;
@@ -292,7 +291,7 @@
     let startY = 0;
     let dragIndex = null;
 
-    // Audio & Voice Engine
+    // Audio Engine
     let audioCtx = null;
     let audioEnabled = false;
     let bgMusicTimer = null;
@@ -318,14 +317,14 @@
       }
     }
 
-    function playTone(freq, type = 'sine', duration = 0.15) {
+    function playTone(freq, type = 'sine', duration = 0.15, vol = 0.1) {
       if (!audioEnabled || !audioCtx) return;
       try {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = type;
         osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
@@ -335,17 +334,15 @@
     }
 
     function playMatchSound(chain = 1) {
-      playTone(300 + (chain * 120), 'triangle', 0.2);
+      playTone(320 + (chain * 100), 'triangle', 0.2, 0.2);
     }
 
     function speakComplement(text) {
-      // Visual complement display
       const banner = document.getElementById('complement');
       banner.textContent = text;
       banner.classList.add('show');
       setTimeout(() => banner.classList.remove('show'), 900);
 
-      // Voice complement speech synthesis
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
@@ -357,13 +354,25 @@
 
     function startBgMusic() {
       if (bgMusicTimer) clearInterval(bgMusicTimer);
-      const notes = [261.63, 329.63, 392.00, 523.25, 440.00, 349.23];
+      
+      // Melody note frequencies (Hz) & bassline notes
+      const melody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 440.00, 349.23];
+      const bass = [130.81, 164.81, 196.00, 220.00];
       let step = 0;
+
       bgMusicTimer = setInterval(() => {
         if (!audioEnabled) return;
-        playTone(notes[step % notes.length], 'sine', 0.18);
+        
+        // Lead melody synth
+        playTone(melody[step % melody.length], 'sine', 0.22, 0.05);
+        
+        // Deep ambient bassline every 2 beats
+        if (step % 2 === 0) {
+          playTone(bass[Math.floor(step / 2) % bass.length], 'triangle', 0.35, 0.08);
+        }
+
         step++;
-      }, 400);
+      }, 350);
     }
 
     function stopBgMusic() {
@@ -389,7 +398,6 @@
 
       const activePool = allFruits.slice(0, config.fruitTypes);
 
-      // Populate board without starting matches
       do {
         grid = [];
         for (let i = 0; i < config.size * config.size; i++) {
@@ -476,7 +484,6 @@
     async function swapAndProcess(idx1, idx2) {
       isProcessing = true;
       
-      // Swap elements
       [grid[idx1], grid[idx2]] = [grid[idx2], grid[idx1]];
       render();
 
@@ -487,7 +494,6 @@
         document.getElementById('moves').textContent = moves;
         await resolveMatches();
 
-        // Check Victory / Defeat Conditions
         if (score >= targetScore) {
           speakComplement('LEVEL COMPLETED!');
           setTimeout(() => {
@@ -509,8 +515,7 @@
           }, 400);
         }
       } else {
-        // Revert swap if no match was made
-        playTone(150, 'sawtooth', 0.15);
+        playTone(150, 'sawtooth', 0.15, 0.1);
         await new Promise(r => setTimeout(r, 250));
         [grid[idx1], grid[idx2]] = [grid[idx2], grid[idx1]];
         render();
@@ -524,7 +529,6 @@
       const SIZE = config.size;
       const matchedIndices = new Set();
 
-      // Check Horizontal Matches
       for (let r = 0; r < SIZE; r++) {
         for (let c = 0; c < SIZE - 2; c++) {
           const idx = r * SIZE + c;
@@ -537,7 +541,6 @@
         }
       }
 
-      // Check Vertical Matches
       for (let r = 0; r < SIZE - 2; r++) {
         for (let c = 0; c < SIZE; c++) {
           const idx = r * SIZE + c;
@@ -565,7 +568,6 @@
         cascadeLevel++;
         playMatchSound(cascadeLevel);
 
-        // Multiplier & complement triggers based on match size and cascading chain
         if (matches.length >= 5) {
           multiplier = Math.max(multiplier, matches.length - 2);
           speakComplement('SWEET COMPLEMENT!');
@@ -585,12 +587,10 @@
         score += matches.length * 10 * multiplier;
         document.getElementById('score').textContent = score;
 
-        // Clear matched fruits
         matches.forEach(i => grid[i] = null);
         render();
         await new Promise(r => setTimeout(r, 200));
 
-        // Drop existing fruits down
         for (let c = 0; c < SIZE; c++) {
           for (let r = SIZE - 1; r >= 0; r--) {
             const idx = r * SIZE + c;
@@ -607,7 +607,6 @@
           }
         }
 
-        // Refill empty top tiles
         for (let i = 0; i < SIZE * SIZE; i++) {
           if (grid[i] === null) {
             grid[i] = activePool[Math.floor(Math.random() * activePool.length)];
@@ -617,7 +616,6 @@
         render();
         await new Promise(r => setTimeout(r, 250));
 
-        // Re-check for cascading combos
         matches = checkMatches();
       }
 
@@ -630,7 +628,6 @@
       initLevel();
     }
 
-    // Initialize game on script load
     initLevel();
   </script>
 </body>

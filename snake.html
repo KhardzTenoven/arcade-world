@@ -1,15 +1,16 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>🐍 Neon Snake — Bright Arcade</title>
   <style>
     * {
       box-sizing: border-box;
     }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       min-height: 100%;
       font-family: Inter, system-ui, Arial, sans-serif;
@@ -17,8 +18,7 @@
     }
 
     body {
-      background: 
-        radial-gradient(circle at 15% 10%, #5434b9 0, transparent 30%),
+      background: radial-gradient(circle at 15% 10%, #5434b9 0, transparent 30%),
         radial-gradient(circle at 85% 15%, #008eb4 0, transparent 28%),
         linear-gradient(135deg, #090d24, #11183a 60%, #080b20);
       overflow-x: hidden;
@@ -32,6 +32,180 @@
       opacity: .1;
       background-image: radial-gradient(#fff 1px, transparent 1px);
       background-size: 42px 42px;
+    }
+
+    .container {
+      width: min(1150px, 92%);
+      margin: auto;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 0;
+    }
+
+    .brand {
+      font-size: 24px;
+      font-weight: 950;
+      letter-spacing: -.04em;
+    }
+
+    .brand span {
+      color: #67e8ff;
+    }
+
+    .nav a,
+    .btn {
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid #ffffff20;
+      background: #ffffff0d;
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .nav a:hover,
+    .btn:hover {
+      transform: translateY(-2px);
+      background: #ffffff18;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 75px 0 55px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #ffffff0d;
+      border: 1px solid #ffffff18;
+      color: #bceeff;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .hero h1 {
+      font-size: clamp(46px, 8vw, 86px);
+      line-height: .92;
+      letter-spacing: -.07em;
+      margin: 18px 0;
+      background: linear-gradient(90deg, #fff, #75eaff, #ff82c8);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 680px;
+      margin: auto;
+      color: #bdc7e7;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .quote {
+      margin: 25px auto 0;
+      max-width: 700px;
+      padding: 18px 22px;
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff09;
+      backdrop-filter: blur(14px);
+      font-size: 20px;
+      font-weight: 750;
+    }
+
+    .quote small {
+      display: block;
+      color: #8995bc;
+      font-size: 12px;
+      margin-top: 7px;
+    }
+
+    .games {
+      padding: 20px 0 80px;
+    }
+
+    .games h2 {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 28px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      min-height: 250px;
+      padding: 24px;
+      border: 1px solid #ffffff18;
+      border-radius: 26px;
+      background: linear-gradient(145deg, #ffffff12, #ffffff05);
+      box-shadow: 0 25px 70px #0004;
+      transition: .3s;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: #ffffff35;
+    }
+
+    .icon {
+      font-size: 55px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .card h3 {
+      font-size: 25px;
+      margin: 12px 0 7px;
+    }
+
+    .card p {
+      color: #aeb9dc;
+      line-height: 1.5;
+    }
+
+    .play {
+      display: inline-block;
+      margin-top: 12px;
+      background: linear-gradient(90deg, #ff4fa3, #6b63ff);
+      padding: 11px 15px;
+      border-radius: 13px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .tip {
+      text-align: center;
+      color: #7f8bb1;
+      margin-top: 25px;
+    }
+
+    @keyframes float {
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #707ba0;
+      border-top: 1px solid #ffffff0d;
     }
 
     .gamepage {
@@ -58,23 +232,6 @@
     .gamebar h1 {
       font-size: 22px;
       margin: 0;
-    }
-
-    .btn {
-      color: #fff;
-      text-decoration: none;
-      border: 1px solid #ffffff20;
-      background: #ffffff0d;
-      padding: 11px 16px;
-      border-radius: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: .2s;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      background: #ffffff18;
     }
 
     .gamearea {
@@ -115,10 +272,6 @@
       margin: auto;
       max-width: 100%;
       max-height: calc(100% - 110px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      touch-action: none;
     }
 
     canvas {
@@ -130,14 +283,95 @@
       border-radius: 20px;
       background: #06101b;
       border: 1px solid #ffffff18;
-      touch-action: none;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .controls button {
+      width: 58px;
+      height: 48px;
+      border: 0;
+      border-radius: 13px;
+      background: #ffffff12;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .controls button:active {
+      transform: scale(.94);
     }
 
     .touch {
       color: #8f9bc0;
       text-align: center;
-      font-size: 13px;
-      margin: 12px 0 0;
+      font-size: 12px;
+      margin: 8px 0 0;
+    }
+
+    .choicegrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: min(560px, 100%);
+      margin: auto;
+    }
+
+    .choice {
+      aspect-ratio: 1;
+      border: 0;
+      border-radius: 20px;
+      font-size: 42px;
+      cursor: pointer;
+      background: #ffffff0b;
+      transition: .15s;
+      box-shadow: inset 0 2px 3px #fff5;
+    }
+
+    .choice:hover {
+      transform: scale(1.04);
+    }
+
+    .choice.sel {
+      outline: 4px solid #fff;
+    }
+
+    .c0 { background: #ff537d; }
+    .c1 { background: #ff9d45; }
+    .c2 { background: #ffd34d; }
+    .c3 { background: #65dc7c; }
+    .c4 { background: #63cfff; }
+    .c5 { background: #a778ff; }
+
+    .puzzle {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      width: min(500px, 100%);
+      margin: auto;
+    }
+
+    .tile {
+      aspect-ratio: 1;
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #43d9ff, #6a62ff);
+      color: #fff;
+      font-weight: 950;
+      font-size: clamp(22px, 6vw, 42px);
+      cursor: pointer;
+    }
+
+    .tile.empty {
+      background: transparent;
+      box-shadow: none;
+      cursor: default;
     }
 
     .center {
@@ -148,24 +382,80 @@
       margin-top: 12px;
     }
 
+    .memory {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+      width: min(520px, 100%);
+      margin: auto;
+    }
+
+    .memory button {
+      aspect-ratio: 1;
+      border: 0;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #4d58a9, #292f68);
+      color: transparent;
+      font-size: 34px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .memory button.open {
+      background: #ffffff18;
+      color: #fff;
+    }
+
+    .memory button.matched {
+      background: linear-gradient(135deg, #2abf9c, #1b7968);
+      color: #fff;
+    }
+
     @media (max-width: 760px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero {
+        padding-top: 45px;
+      }
+
       .gamebox {
         padding: 12px;
         border-radius: 20px;
       }
+
       .gamebar {
         height: 62px;
         flex-basis: 62px;
       }
+
       .gamebar h1 {
         font-size: 18px;
       }
+
       .gamearea {
         padding: 8px;
+      }
+
+      .choicegrid {
+        gap: 7px;
+      }
+
+      .memory {
+        gap: 6px;
       }
     }
 
     @media (max-width: 480px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        min-height: 210px;
+      }
+
       .gamebox h2 {
         font-size: 20px;
       }
@@ -177,179 +467,128 @@
   <header class="gamebar">
     <a class="btn" href="index.html">← Home</a>
     <h1>🐍 Neon Snake</h1>
-    <span style="color: #91a0c8; font-size: 12px;">Bright Arcade</span>
+    <span style="color:#91a0c8;font-size:12px">Bright Arcade</span>
   </header>
 
   <main class="gamearea">
     <section class="gamebox">
       <h2>🐍 Neon Snake</h2>
-      <div class="stats">
-        Score: <b id="score">0</b>
-      </div>
+      <div class="stats">Score: <b id="score">0</b> • Swipe the board or use the touch controls</div>
       <div class="board">
         <canvas id="board" width="520" height="520"></canvas>
-        <div class="touch">Swipe screen to control snake • Keyboard arrows/WASD supported</div>
+        <div class="controls">
+          <button onclick="go('left')">←</button>
+          <button onclick="go('up')">↑</button>
+          <button onclick="go('down')">↓</button>
+          <button onclick="go('right')">→</button>
+        </div>
+        <div class="touch">Touch controls enabled • Keyboard arrows/WASD also supported</div>
       </div>
       <div class="center">
-        <button class="btn restart" onclick="start()">↻ Restart</button>
+        <button class="btn restart" onclick="init&&init();start&&start()">↻ Restart</button>
       </div>
     </section>
   </main>
 
   <script>
-    const canvas = document.getElementById('board');
-    const ctx = canvas.getContext('2d');
-    const N = 20;
-
-    let snake = [];
-    let food = {};
-    let dir = { x: 1, y: 0 };
-    let nextDir = { x: 1, y: 0 };
-    let score = 0;
-    let timer = null;
+    const C = document.getElementById('board'),
+      x = C.getContext('2d'),
+      N = 20;
+    let s, f, d, nd, score = 0, timer;
 
     function start() {
-      if (timer) clearInterval(timer);
-      
-      snake = [
-        { x: 10, y: 10 },
-        { x: 9, y: 10 },
-        { x: 8, y: 10 }
-      ];
-      
-      dir = { x: 1, y: 0 };
-      nextDir = { x: 1, y: 0 };
+      clearInterval(timer);
+      s = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+      d = { x: 1, y: 0 };
+      nd = d;
       score = 0;
-      
-      document.getElementById('score').textContent = score;
-      
-      placeFood();
+      place();
       draw();
       timer = setInterval(tick, 105);
     }
 
-    function placeFood() {
+    function place() {
       do {
-        food = {
+        f = {
           x: Math.floor(Math.random() * N),
           y: Math.floor(Math.random() * N)
         };
-      } while (snake.some(segment => segment.x === food.x && segment.y === food.y));
+      } while (s.some(a => a.x === f.x && a.y === f.y));
     }
 
     function go(k) {
-      const moves = {
+      let m = {
         up: { x: 0, y: -1 },
         down: { x: 0, y: 1 },
         left: { x: -1, y: 0 },
         right: { x: 1, y: 0 }
-      };
-      
-      const newMove = moves[k];
-      
-      // Prevent 180-degree immediate turns
-      if (newMove && !(newMove.x === -dir.x && newMove.y === -dir.y)) {
-        nextDir = newMove;
-      }
+      }[k];
+      if (m && !(m.x === -d.x && m.y === -d.y)) nd = m;
     }
 
     function tick() {
-      dir = nextDir;
-      const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
-
-      // Wall collision or self collision check
-      if (
-        head.x < 0 || head.y < 0 || 
-        head.x >= N || head.y >= N || 
-        snake.some(segment => segment.x === head.x && segment.y === head.y)
-      ) {
+      d = nd;
+      let h = { x: s[0].x + d.x, y: s[0].y + d.y };
+      if (h.x < 0 || h.y < 0 || h.x >= N || h.y >= N || s.some(a => a.x === h.x && a.y === h.y)) {
         clearInterval(timer);
-        alert(`💥 Game Over! Final Score: ${score}`);
         return;
       }
-
-      snake.unshift(head);
-
-      // Food collision check
-      if (head.x === food.x && head.y === food.y) {
+      s.unshift(h);
+      if (h.x === f.x && h.y === f.y) {
         score += 10;
         document.getElementById('score').textContent = score;
-        placeFood();
+        place();
       } else {
-        snake.pop();
+        s.pop();
       }
-
       draw();
     }
 
     function draw() {
-      // Background Grid
-      ctx.fillStyle = '#06101b';
-      ctx.fillRect(0, 0, 520, 520);
-
+      x.fillStyle = '#06101b';
+      x.fillRect(0, 0, 520, 520);
       for (let i = 0; i < N; i++) {
         for (let j = 0; j < N; j++) {
-          ctx.fillStyle = (i + j) % 2 ? '#0a1622' : '#09131f';
-          ctx.fillRect(i * 26, j * 26, 26, 26);
+          x.fillStyle = (i + j) % 2 ? '#0a1622' : '#09131f';
+          x.fillRect(i * 26, j * 26, 26, 26);
         }
       }
-
-      // Draw Food
-      if (food) {
-        ctx.fillStyle = '#ff4fa3';
-        ctx.beginPath();
-        ctx.arc(food.x * 26 + 13, food.y * 26 + 13, 9, 0, Math.PI * 2);
-        ctx.fill();
+      if (f) {
+        x.fillStyle = '#ff4fa3';
+        x.beginPath();
+        x.arc(f.x * 26 + 13, f.y * 26 + 13, 9, 0, 7);
+        x.fill();
       }
-
-      // Draw Snake
-      snake.forEach((segment, index) => {
-        ctx.fillStyle = index === 0 ? '#9affdc' : '#42e6a4';
-        ctx.beginPath();
-        ctx.roundRect(segment.x * 26 + 2, segment.y * 26 + 2, 22, 22, 7);
-        ctx.fill();
+      s?.forEach((a, i) => {
+        x.fillStyle = i ? '#42e6a4' : '#9affdc';
+        x.beginPath();
+        x.roundRect(a.x * 26 + 2, a.y * 26 + 2, 22, 22, 7);
+        x.fill();
       });
     }
 
-    // Keyboard Listeners
     document.addEventListener('keydown', e => {
-      const key = e.key.toLowerCase();
-      if (key === 'arrowup' || key === 'w') go('up');
-      if (key === 'arrowdown' || key === 's') go('down');
-      if (key === 'arrowleft' || key === 'a') go('left');
-      if (key === 'arrowright' || key === 'd') go('right');
+      let k = e.key.toLowerCase();
+      if (k === 'arrowup' || k === 'w') go('up');
+      if (k === 'arrowdown' || k === 's') go('down');
+      if (k === 'arrowleft' || k === 'a') go('left');
+      if (k === 'arrowright' || k === 'd') go('right');
     });
 
-    // Touch Swipe Event Listeners
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    window.addEventListener('touchstart', e => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
+    let tx, ty;
+    C.addEventListener('touchstart', e => {
+      tx = e.changedTouches[0].clientX;
+      ty = e.changedTouches[0].clientY;
     }, { passive: true });
 
-    window.addEventListener('touchend', e => {
-      if (!e.changedTouches.length) return;
-      
-      const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
-      
-      const diffX = touchEndX - touchStartX;
-      const diffY = touchEndY - touchStartY;
-      
-      const minSwipeDistance = 15;
-
-      if (Math.max(Math.abs(diffX), Math.abs(diffY)) < minSwipeDistance) return;
-
-      if (Math.abs(diffX) > Math.abs(diffY)) {
-        go(diffX > 0 ? 'right' : 'left');
-      } else {
-        go(diffY > 0 ? 'down' : 'up');
-      }
+    C.addEventListener('touchend', e => {
+      let a = e.changedTouches[0],
+        dx = a.clientX - tx,
+        dy = a.clientY - ty;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return;
+      go(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
     }, { passive: true });
 
-    // Initial Start
     start();
   </script>
 </body>

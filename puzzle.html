@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bright Arcade</title><style>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>🧩 15 Puzzle — Bright Arcade</title><style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,Arial,sans-serif;color:#fff}
 body{background:radial-gradient(circle at 15% 10%,#5434b9 0,transparent 30%),radial-gradient(circle at 85% 15%,#008eb4 0,transparent 28%),linear-gradient(135deg,#090d24,#11183a 60%,#080b20);overflow-x:hidden}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.1;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:42px 42px}
@@ -17,16 +17,8 @@ canvas{display:block;width:min(72vh,78vw,560px);height:min(72vh,78vw,560px);max-
 .memory{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;width:min(520px,100%);margin:auto}.memory button{aspect-ratio:1;border:0;border-radius:15px;background:linear-gradient(135deg,#4d58a9,#292f68);color:transparent;font-size:34px;cursor:pointer;transition:.2s}.memory button.open{background:#ffffff18;color:#fff}.memory button.matched{background:linear-gradient(135deg,#2abf9c,#1b7968);color:#fff}
 @media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.hero{padding-top:45px}.gamebox{padding:12px;border-radius:20px}.gamebar{height:62px;flex-basis:62px}.gamebar h1{font-size:18px}.gamearea{padding:8px}.choicegrid{gap:7px}.memory{gap:6px}}
 @media(max-width:480px){.grid{grid-template-columns:1fr}.card{min-height:210px}.gamebox h2{font-size:20px}}
-</style></head><body>
-<div class="container"><nav class="nav"><div class="brand">Bright<span>Arcade</span> ✦</div><a href="#games">Explore Games</a></nav>
-<section class="hero"><span class="eyebrow">Your happy place to play</span><h1>Play. Relax. Grow.</h1><p>Take a quick break, challenge yourself, and have fun. Pick a game below and jump straight into a distraction-free play screen.</p>
-<div class="quote" id="quote">“Every small step is still progress.”<small>— Daily reminder</small></div></section>
-<section class="games" id="games"><h2>Choose Your Game</h2><div class="grid">
-<div class="card"><div class="icon">🐍</div><h3>Neon Snake</h3><p>Guide your glowing snake, collect food and beat your best score.</p><a class="play" href="snake.html">Play Snake →</a></div>
-<div class="card"><div class="icon">🍓</div><h3>Fruit Match</h3><p>Swap colorful fruits, make matches and build your score.</p><a class="play" href="fruit.html">Play Fruit Match →</a></div>
-<div class="card"><div class="icon">🧩</div><h3>15 Puzzle</h3><p>Slide the tiles into order. Simple to learn, satisfying to master.</p><a class="play" href="puzzle.html">Play Puzzle →</a></div>
-<div class="card"><div class="icon">🧠</div><h3>Memory Match</h3><p>Flip cards, remember the pairs and train your memory.</p><a class="play" href="memory.html">Play Memory →</a></div>
-</div><p class="tip">💡 Tip: Play for a few minutes, then come back whenever you need a fresh challenge.</p></section></div>
-<footer>Bright Arcade • Made for smooth, friendly play</footer>
-<script>const q=[["“Success is the sum of small efforts, repeated.”","— Daily reminder"],["“You can do hard things.”","— Daily reminder"],["“Progress, not perfection.”","— Daily reminder"],["“A little practice today makes tomorrow easier.”","— Daily reminder"],["“Believe you can, then take the first step.”","— Daily reminder"]];let i=Math.floor(Math.random()*q.length);document.getElementById('quote').innerHTML=q[i][0]+"<small>"+q[i][1]+"</small>";</script>
-</body></html>
+</style></head><body class="gamepage">
+<header class="gamebar"><a class="btn" href="index.html">← Home</a><h1>🧩 15 Puzzle</h1><span style="color:#91a0c8;font-size:12px">Bright Arcade</span></header>
+<main class="gamearea"><section class="gamebox"><h2>🧩 15 Puzzle</h2><div class="stats">Moves: <b id="moves">0</b></div><div class="board"><div id="board" class="puzzle"></div><div class="touch">Tap a tile next to the empty space</div></div><div class="center"><button class="btn restart" onclick="init&&init();start&&start()">↻ Restart</button></div></section></main><script>
+let a=[],moves=0;function init(){a=[...Array(15)].map((_,i)=>i+1);a.push(0);for(let z=0;z<250;z++){let i=a.indexOf(0),r=Math.floor(i/4),c=i%4,o=[];if(r)o.push(i-4);if(r<3)o.push(i+4);if(c)o.push(i-1);if(c<3)o.push(i+1);let j=o[Math.floor(Math.random()*o.length)];[a[i],a[j]]=[a[j],a[i]]}moves=0;render()}function render(){let b=document.getElementById('board');b.innerHTML='';a.forEach((v,i)=>{let q=document.createElement('button');q.className='tile'+(!v?' empty':'');q.textContent=v||'';q.onclick=()=>move(i);b.appendChild(q)});document.getElementById('moves').textContent=moves}function move(i){let z=a.indexOf(0),r=Math.floor(i/4),c=i%4,zr=Math.floor(z/4),zc=z%4;if(Math.abs(r-zr)+Math.abs(c-zc)!==1)return;[a[i],a[z]]=[a[z],a[i]];moves++;render();if(a.every((v,i)=>v===(i+1)%16))setTimeout(()=>alert('🎉 Puzzle solved!'),100)}init();
+</script></body></html>

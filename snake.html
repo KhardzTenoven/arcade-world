@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bright Arcade</title><style>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>🐍 Neon Snake — Bright Arcade</title><style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,Arial,sans-serif;color:#fff}
 body{background:radial-gradient(circle at 15% 10%,#5434b9 0,transparent 30%),radial-gradient(circle at 85% 15%,#008eb4 0,transparent 28%),linear-gradient(135deg,#090d24,#11183a 60%,#080b20);overflow-x:hidden}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.1;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:42px 42px}
@@ -17,16 +17,15 @@ canvas{display:block;width:min(72vh,78vw,560px);height:min(72vh,78vw,560px);max-
 .memory{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;width:min(520px,100%);margin:auto}.memory button{aspect-ratio:1;border:0;border-radius:15px;background:linear-gradient(135deg,#4d58a9,#292f68);color:transparent;font-size:34px;cursor:pointer;transition:.2s}.memory button.open{background:#ffffff18;color:#fff}.memory button.matched{background:linear-gradient(135deg,#2abf9c,#1b7968);color:#fff}
 @media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.hero{padding-top:45px}.gamebox{padding:12px;border-radius:20px}.gamebar{height:62px;flex-basis:62px}.gamebar h1{font-size:18px}.gamearea{padding:8px}.choicegrid{gap:7px}.memory{gap:6px}}
 @media(max-width:480px){.grid{grid-template-columns:1fr}.card{min-height:210px}.gamebox h2{font-size:20px}}
-</style></head><body>
-<div class="container"><nav class="nav"><div class="brand">Bright<span>Arcade</span> ✦</div><a href="#games">Explore Games</a></nav>
-<section class="hero"><span class="eyebrow">Your happy place to play</span><h1>Play. Relax. Grow.</h1><p>Take a quick break, challenge yourself, and have fun. Pick a game below and jump straight into a distraction-free play screen.</p>
-<div class="quote" id="quote">“Every small step is still progress.”<small>— Daily reminder</small></div></section>
-<section class="games" id="games"><h2>Choose Your Game</h2><div class="grid">
-<div class="card"><div class="icon">🐍</div><h3>Neon Snake</h3><p>Guide your glowing snake, collect food and beat your best score.</p><a class="play" href="snake.html">Play Snake →</a></div>
-<div class="card"><div class="icon">🍓</div><h3>Fruit Match</h3><p>Swap colorful fruits, make matches and build your score.</p><a class="play" href="fruit.html">Play Fruit Match →</a></div>
-<div class="card"><div class="icon">🧩</div><h3>15 Puzzle</h3><p>Slide the tiles into order. Simple to learn, satisfying to master.</p><a class="play" href="puzzle.html">Play Puzzle →</a></div>
-<div class="card"><div class="icon">🧠</div><h3>Memory Match</h3><p>Flip cards, remember the pairs and train your memory.</p><a class="play" href="memory.html">Play Memory →</a></div>
-</div><p class="tip">💡 Tip: Play for a few minutes, then come back whenever you need a fresh challenge.</p></section></div>
-<footer>Bright Arcade • Made for smooth, friendly play</footer>
-<script>const q=[["“Success is the sum of small efforts, repeated.”","— Daily reminder"],["“You can do hard things.”","— Daily reminder"],["“Progress, not perfection.”","— Daily reminder"],["“A little practice today makes tomorrow easier.”","— Daily reminder"],["“Believe you can, then take the first step.”","— Daily reminder"]];let i=Math.floor(Math.random()*q.length);document.getElementById('quote').innerHTML=q[i][0]+"<small>"+q[i][1]+"</small>";</script>
-</body></html>
+</style></head><body class="gamepage">
+<header class="gamebar"><a class="btn" href="index.html">← Home</a><h1>🐍 Neon Snake</h1><span style="color:#91a0c8;font-size:12px">Bright Arcade</span></header>
+<main class="gamearea"><section class="gamebox"><h2>🐍 Neon Snake</h2><div class="stats">Score: <b id="score">0</b> • Swipe the board or use the touch controls</div><div class="board"><canvas id="board" width="520" height="520"></canvas><div class="controls"><button onclick="go('left')">←</button><button onclick="go('up')">↑</button><button onclick="go('down')">↓</button><button onclick="go('right')">→</button></div><div class="touch">Touch controls enabled • Keyboard arrows/WASD also supported</div></div><div class="center"><button class="btn restart" onclick="init&&init();start&&start()">↻ Restart</button></div></section></main><script>
+const C=document.getElementById('board'),x=C.getContext('2d'),N=20;let s,f,d,nd,score=0,timer;
+function start(){clearInterval(timer);s=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];d={x:1,y:0};nd=d;score=0;place();draw();timer=setInterval(tick,105)}
+function place(){do{f={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)}}while(s.some(a=>a.x===f.x&&a.y===f.y))}
+function go(k){let m={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}[k];if(m&&!(m.x===-d.x&&m.y===-d.y))nd=m}
+function tick(){d=nd;let h={x:s[0].x+d.x,y:s[0].y+d.y};if(h.x<0||h.y<0||h.x>=N||h.y>=N||s.some(a=>a.x===h.x&&a.y===h.y)){clearInterval(timer);return}s.unshift(h);if(h.x===f.x&&h.y===f.y){score+=10;document.getElementById('score').textContent=score;place()}else s.pop();draw()}
+function draw(){x.fillStyle='#06101b';x.fillRect(0,0,520,520);for(let i=0;i<N;i++)for(let j=0;j<N;j++){x.fillStyle=(i+j)%2?'#0a1622':'#09131f';x.fillRect(i*26,j*26,26,26)}if(f){x.fillStyle='#ff4fa3';x.beginPath();x.arc(f.x*26+13,f.y*26+13,9,0,7);x.fill()}s?.forEach((a,i)=>{x.fillStyle=i?'#42e6a4':'#9affdc';x.beginPath();x.roundRect(a.x*26+2,a.y*26+2,22,22,7);x.fill()})}
+document.addEventListener('keydown',e=>{let k=e.key.toLowerCase();if(k==='arrowup'||k==='w')go('up');if(k==='arrowdown'||k==='s')go('down');if(k==='arrowleft'||k==='a')go('left');if(k==='arrowright'||k==='d')go('right')});
+let tx,ty;C.addEventListener('touchstart',e=>{tx=e.changedTouches[0].clientX;ty=e.changedTouches[0].clientY},{passive:true});C.addEventListener('touchend',e=>{let a=e.changedTouches[0],dx=a.clientX-tx,dy=a.clientY-ty;if(Math.max(Math.abs(dx),Math.abs(dy))<18)return;go(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))},{passive:true});start();
+</script></body></html>

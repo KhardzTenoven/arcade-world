@@ -118,6 +118,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      touch-action: none;
     }
 
     canvas {
@@ -129,36 +130,14 @@
       border-radius: 20px;
       background: #06101b;
       border: 1px solid #ffffff18;
-    }
-
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .controls button {
-      width: 58px;
-      height: 48px;
-      border: 0;
-      border-radius: 13px;
-      background: #ffffff12;
-      color: #fff;
-      font-size: 20px;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    .controls button:active {
-      transform: scale(.94);
+      touch-action: none;
     }
 
     .touch {
       color: #8f9bc0;
       text-align: center;
-      font-size: 12px;
-      margin: 8px 0 0;
+      font-size: 13px;
+      margin: 12px 0 0;
     }
 
     .center {
@@ -209,13 +188,7 @@
       </div>
       <div class="board">
         <canvas id="board" width="520" height="520"></canvas>
-        <div class="controls">
-          <button onclick="go('left')">←</button>
-          <button onclick="go('up')">↑</button>
-          <button onclick="go('down')">↓</button>
-          <button onclick="go('right')">→</button>
-        </div>
-        <div class="touch">Touch controls enabled • Keyboard arrows/WASD supported</div>
+        <div class="touch">Swipe screen to control snake • Keyboard arrows/WASD supported</div>
       </div>
       <div class="center">
         <button class="btn restart" onclick="start()">↻ Restart</button>
@@ -234,10 +207,6 @@
     let nextDir = { x: 1, y: 0 };
     let score = 0;
     let timer = null;
-
-    function init() {
-      start();
-    }
 
     function start() {
       if (timer) clearInterval(timer);
@@ -351,20 +320,27 @@
       if (key === 'arrowright' || key === 'd') go('right');
     });
 
-    // Touch Swipe Listeners
-    let touchX, touchY;
-    
-    canvas.addEventListener('touchstart', e => {
-      touchX = e.changedTouches[0].clientX;
-      touchY = e.changedTouches[0].clientY;
+    // Touch Swipe Event Listeners
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    window.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
     }, { passive: true });
 
-    canvas.addEventListener('touchend', e => {
-      const touch = e.changedTouches[0];
-      const diffX = touch.clientX - touchX;
-      const diffY = touch.clientY - touchY;
+    window.addEventListener('touchend', e => {
+      if (!e.changedTouches.length) return;
+      
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+      
+      const minSwipeDistance = 15;
 
-      if (Math.max(Math.abs(diffX), Math.abs(diffY)) < 18) return;
+      if (Math.max(Math.abs(diffX), Math.abs(diffY)) < minSwipeDistance) return;
 
       if (Math.abs(diffX) > Math.abs(diffY)) {
         go(diffX > 0 ? 'right' : 'left');

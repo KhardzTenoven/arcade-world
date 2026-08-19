@@ -1,24 +1,582 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>🧩 15 Puzzle — Bright Arcade</title><style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,Arial,sans-serif;color:#fff}
-body{background:radial-gradient(circle at 15% 10%,#5434b9 0,transparent 30%),radial-gradient(circle at 85% 15%,#008eb4 0,transparent 28%),linear-gradient(135deg,#090d24,#11183a 60%,#080b20);overflow-x:hidden}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.1;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:42px 42px}
-.container{width:min(1150px,92%);margin:auto}.nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}.brand{font-size:24px;font-weight:950;letter-spacing:-.04em}.brand span{color:#67e8ff}.nav a,.btn{color:#fff;text-decoration:none;border:1px solid #ffffff20;background:#ffffff0d;padding:11px 16px;border-radius:14px;font-weight:800;cursor:pointer;transition:.2s}.nav a:hover,.btn:hover{transform:translateY(-2px);background:#ffffff18}
-.hero{text-align:center;padding:75px 0 55px}.eyebrow{display:inline-block;padding:8px 14px;border-radius:999px;background:#ffffff0d;border:1px solid #ffffff18;color:#bceeff;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.12em}.hero h1{font-size:clamp(46px,8vw,86px);line-height:.92;letter-spacing:-.07em;margin:18px 0;background:linear-gradient(90deg,#fff,#75eaff,#ff82c8);-webkit-background-clip:text;color:transparent}.hero p{max-width:680px;margin:auto;color:#bdc7e7;font-size:18px;line-height:1.7}
-.quote{margin:25px auto 0;max-width:700px;padding:18px 22px;border:1px solid #ffffff18;border-radius:20px;background:#ffffff09;backdrop-filter:blur(14px);font-size:20px;font-weight:750}.quote small{display:block;color:#8995bc;font-size:12px;margin-top:7px}
-.games{padding:20px 0 80px}.games h2{text-align:center;font-size:36px;margin-bottom:28px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.card{position:relative;overflow:hidden;min-height:250px;padding:24px;border:1px solid #ffffff18;border-radius:26px;background:linear-gradient(145deg,#ffffff12,#ffffff05);box-shadow:0 25px 70px #0004;transition:.3s}.card:hover{transform:translateY(-8px);border-color:#ffffff35}.icon{font-size:55px;animation:float 3s ease-in-out infinite}.card h3{font-size:25px;margin:12px 0 7px}.card p{color:#aeb9dc;line-height:1.5}.play{display:inline-block;margin-top:12px;background:linear-gradient(90deg,#ff4fa3,#6b63ff);padding:11px 15px;border-radius:13px;text-decoration:none;color:#fff;font-weight:900}.tip{text-align:center;color:#7f8bb1;margin-top:25px}
-@keyframes float{50%{transform:translateY(-8px)}}footer{text-align:center;padding:25px;color:#707ba0;border-top:1px solid #ffffff0d}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>🧩 15 Puzzle — Bright Arcade</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-.gamepage{height:100dvh;min-height:100vh;overflow:hidden;display:flex;flex-direction:column}.gamebar{height:72px;flex:0 0 72px;display:flex;align-items:center;justify-content:space-between;padding:0 max(18px,4vw);border-bottom:1px solid #ffffff14;background:#080c20dd;backdrop-filter:blur(18px);z-index:5}.gamebar h1{font-size:22px;margin:0}.gamearea{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:16px}.gamebox{width:min(900px,100%);height:min(100%,820px);min-height:0;border:1px solid #ffffff18;border-radius:26px;background:#ffffff09;backdrop-filter:blur(16px);box-shadow:0 25px 80px #0005;padding:18px;display:flex;flex-direction:column}.gamebox h2{text-align:center;margin:2px 0 10px}.stats{text-align:center;color:#bfc9e7;margin-bottom:10px}.board{margin:auto;max-width:100%;max-height:calc(100% - 110px)}
-canvas{display:block;width:min(72vh,78vw,560px);height:min(72vh,78vw,560px);max-width:100%;max-height:calc(100dvh - 210px);border-radius:20px;background:#06101b;border:1px solid #ffffff18}
-.controls{display:flex;justify-content:center;gap:8px;margin-top:10px}.controls button{width:58px;height:48px;border:0;border-radius:13px;background:#ffffff12;color:#fff;font-size:20px;cursor:pointer;touch-action:manipulation}.controls button:active{transform:scale(.94)}
-.touch{color:#8f9bc0;text-align:center;font-size:12px;margin:8px 0 0}
-.choicegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(560px,100%);margin:auto}.choice{aspect-ratio:1;border:0;border-radius:20px;font-size:42px;cursor:pointer;background:#ffffff0b;transition:.15s;box-shadow:inset 0 2px 3px #fff5}.choice:hover{transform:scale(1.04)}.choice.sel{outline:4px solid #fff}.c0{background:#ff537d}.c1{background:#ff9d45}.c2{background:#ffd34d}.c3{background:#65dc7c}.c4{background:#63cfff}.c5{background:#a778ff}
-.puzzle{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;width:min(500px,100%);margin:auto}.tile{aspect-ratio:1;border:0;border-radius:14px;background:linear-gradient(135deg,#43d9ff,#6a62ff);color:#fff;font-weight:950;font-size:clamp(22px,6vw,42px);cursor:pointer}.tile.empty{background:transparent;box-shadow:none;cursor:default}.center{text-align:center}.restart{margin-top:12px}
-.memory{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;width:min(520px,100%);margin:auto}.memory button{aspect-ratio:1;border:0;border-radius:15px;background:linear-gradient(135deg,#4d58a9,#292f68);color:transparent;font-size:34px;cursor:pointer;transition:.2s}.memory button.open{background:#ffffff18;color:#fff}.memory button.matched{background:linear-gradient(135deg,#2abf9c,#1b7968);color:#fff}
-@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.hero{padding-top:45px}.gamebox{padding:12px;border-radius:20px}.gamebar{height:62px;flex-basis:62px}.gamebar h1{font-size:18px}.gamearea{padding:8px}.choicegrid{gap:7px}.memory{gap:6px}}
-@media(max-width:480px){.grid{grid-template-columns:1fr}.card{min-height:210px}.gamebox h2{font-size:20px}}
-</style></head><body class="gamepage">
-<header class="gamebar"><a class="btn" href="index.html">← Home</a><h1>🧩 15 Puzzle</h1><span style="color:#91a0c8;font-size:12px">Bright Arcade</span></header>
-<main class="gamearea"><section class="gamebox"><h2>🧩 15 Puzzle</h2><div class="stats">Moves: <b id="moves">0</b></div><div class="board"><div id="board" class="puzzle"></div><div class="touch">Tap a tile next to the empty space</div></div><div class="center"><button class="btn restart" onclick="init&&init();start&&start()">↻ Restart</button></div></section></main><script>
-let a=[],moves=0;function init(){a=[...Array(15)].map((_,i)=>i+1);a.push(0);for(let z=0;z<250;z++){let i=a.indexOf(0),r=Math.floor(i/4),c=i%4,o=[];if(r)o.push(i-4);if(r<3)o.push(i+4);if(c)o.push(i-1);if(c<3)o.push(i+1);let j=o[Math.floor(Math.random()*o.length)];[a[i],a[j]]=[a[j],a[i]]}moves=0;render()}function render(){let b=document.getElementById('board');b.innerHTML='';a.forEach((v,i)=>{let q=document.createElement('button');q.className='tile'+(!v?' empty':'');q.textContent=v||'';q.onclick=()=>move(i);b.appendChild(q)});document.getElementById('moves').textContent=moves}function move(i){let z=a.indexOf(0),r=Math.floor(i/4),c=i%4,zr=Math.floor(z/4),zc=z%4;if(Math.abs(r-zr)+Math.abs(c-zc)!==1)return;[a[i],a[z]]=[a[z],a[i]];moves++;render();if(a.every((v,i)=>v===(i+1)%16))setTimeout(()=>alert('🎉 Puzzle solved!'),100)}init();
-</script></body></html>
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, system-ui, Arial, sans-serif;
+      color: #fff;
+    }
+
+    body {
+      background: radial-gradient(circle at 15% 10%, #5434b9 0, transparent 30%), radial-gradient(circle at 85% 15%, #008eb4 0, transparent 28%), linear-gradient(135deg, #090d24, #11183a 60%, #080b20);
+      overflow-x: hidden;
+    }
+
+    body:before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .1;
+      background-image: radial-gradient(#fff 1px, transparent 1px);
+      background-size: 42px 42px;
+    }
+
+    .container {
+      width: min(1150px, 92%);
+      margin: auto;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 0;
+    }
+
+    .brand {
+      font-size: 24px;
+      font-weight: 950;
+      letter-spacing: -.04em;
+    }
+
+    .brand span {
+      color: #67e8ff;
+    }
+
+    .nav a, .btn {
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid #ffffff20;
+      background: #ffffff0d;
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .nav a:hover, .btn:hover {
+      transform: translateY(-2px);
+      background: #ffffff18;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 75px 0 55px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #ffffff0d;
+      border: 1px solid #ffffff18;
+      color: #bceeff;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .hero h1 {
+      font-size: clamp(46px, 8vw, 86px);
+      line-height: .92;
+      letter-spacing: -.07em;
+      margin: 18px 0;
+      background: linear-gradient(90deg, #fff, #75eaff, #ff82c8);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 680px;
+      margin: auto;
+      color: #bdc7e7;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .quote {
+      margin: 25px auto 0;
+      max-width: 700px;
+      padding: 18px 22px;
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff09;
+      backdrop-filter: blur(14px);
+      font-size: 20px;
+      font-weight: 750;
+    }
+
+    .quote small {
+      display: block;
+      color: #8995bc;
+      font-size: 12px;
+      margin-top: 7px;
+    }
+
+    .games {
+      padding: 20px 0 80px;
+    }
+
+    .games h2 {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 28px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      min-height: 250px;
+      padding: 24px;
+      border: 1px solid #ffffff18;
+      border-radius: 26px;
+      background: linear-gradient(145deg, #ffffff12, #ffffff05);
+      box-shadow: 0 25px 70px #0004;
+      transition: .3s;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: #ffffff35;
+    }
+
+    .icon {
+      font-size: 55px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .card h3 {
+      font-size: 25px;
+      margin: 12px 0 7px;
+    }
+
+    .card p {
+      color: #aeb9dc;
+      line-height: 1.5;
+    }
+
+    .play {
+      display: inline-block;
+      margin-top: 12px;
+      background: linear-gradient(90deg, #ff4fa3, #6b63ff);
+      padding: 11px 15px;
+      border-radius: 13px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .tip {
+      text-align: center;
+      color: #7f8bb1;
+      margin-top: 25px;
+    }
+
+    @keyframes float {
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #707ba0;
+      border-top: 1px solid #ffffff0d;
+    }
+
+    .gamepage {
+      height: 100dvh;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gamebar {
+      height: 72px;
+      flex: 0 0 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 max(18px, 4vw);
+      border-bottom: 1px solid #ffffff14;
+      background: #080c20dd;
+      backdrop-filter: blur(18px);
+      z-index: 5;
+    }
+
+    .gamebar h1 {
+      font-size: 22px;
+      margin: 0;
+    }
+
+    .gamearea {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .gamebox {
+      width: min(900px, 100%);
+      height: min(100%, 820px);
+      min-height: 0;
+      border: 1px solid #ffffff18;
+      border-radius: 26px;
+      background: #ffffff09;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 25px 80px #0005;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gamebox h2 {
+      text-align: center;
+      margin: 2px 0 10px;
+    }
+
+    .stats {
+      text-align: center;
+      color: #bfc9e7;
+      margin-bottom: 10px;
+    }
+
+    .board {
+      margin: auto;
+      max-width: 100%;
+      max-height: calc(100% - 110px);
+    }
+
+    canvas {
+      display: block;
+      width: min(72vh, 78vw, 560px);
+      height: min(72vh, 78vw, 560px);
+      max-width: 100%;
+      max-height: calc(100dvh - 210px);
+      border-radius: 20px;
+      background: #06101b;
+      border: 1px solid #ffffff18;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .controls button {
+      width: 58px;
+      height: 48px;
+      border: 0;
+      border-radius: 13px;
+      background: #ffffff12;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .controls button:active {
+      transform: scale(.94);
+    }
+
+    .touch {
+      color: #8f9bc0;
+      text-align: center;
+      font-size: 12px;
+      margin: 8px 0 0;
+    }
+
+    .choicegrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: min(560px, 100%);
+      margin: auto;
+    }
+
+    .choice {
+      aspect-ratio: 1;
+      border: 0;
+      border-radius: 20px;
+      font-size: 42px;
+      cursor: pointer;
+      background: #ffffff0b;
+      transition: .15s;
+      box-shadow: inset 0 2px 3px #fff5;
+    }
+
+    .choice:hover {
+      transform: scale(1.04);
+    }
+
+    .choice.sel {
+      outline: 4px solid #fff;
+    }
+
+    .c0 { background: #ff537d; }
+    .c1 { background: #ff9d45; }
+    .c2 { background: #ffd34d; }
+    .c3 { background: #65dc7c; }
+    .c4 { background: #63cfff; }
+    .c5 { background: #a778ff; }
+
+    .puzzle {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      width: min(500px, 100%);
+      margin: auto;
+    }
+
+    .tile {
+      aspect-ratio: 1;
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #43d9ff, #6a62ff);
+      color: #fff;
+      font-weight: 950;
+      font-size: clamp(22px, 6vw, 42px);
+      cursor: pointer;
+    }
+
+    .tile.empty {
+      background: transparent;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .restart {
+      margin-top: 12px;
+    }
+
+    .memory {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+      width: min(520px, 100%);
+      margin: auto;
+    }
+
+    .memory button {
+      aspect-ratio: 1;
+      border: 0;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #4d58a9, #292f68);
+      color: transparent;
+      font-size: 34px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .memory button.open {
+      background: #ffffff18;
+      color: #fff;
+    }
+
+    .memory button.matched {
+      background: linear-gradient(135deg, #2abf9c, #1b7968);
+      color: #fff;
+    }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .hero { padding-top: 45px; }
+      .gamebox { padding: 12px; border-radius: 20px; }
+      .gamebar { height: 62px; flex-basis: 62px; }
+      .gamebar h1 { font-size: 18px; }
+      .gamearea { padding: 8px; }
+      .choicegrid { gap: 7px; }
+      .memory { gap: 6px; }
+    }
+
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: 1fr; }
+      .card { min-height: 210px; }
+      .gamebox h2 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body class="gamepage">
+
+  <header class="gamebar">
+    <a class="btn" href="index.html">← Home</a>
+    <h1>🧩 15 Puzzle</h1>
+    <button class="btn" id="musicBtn" onclick="toggleMusic()">🔇 Music</button>
+  </header>
+
+  <main class="gamearea">
+    <section class="gamebox">
+      <h2>🧩 15 Puzzle</h2>
+      <div class="stats">Moves: <b id="moves">0</b></div>
+      <div class="board">
+        <div id="board" class="puzzle"></div>
+        <div class="touch">Tap a tile next to the empty space</div>
+      </div>
+      <div class="center">
+        <button class="btn restart" onclick="init&&init();start&&start()">↻ Restart</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let a = [];
+    let moves = 0;
+
+    // Web Audio API Synth Synthesizer for ambient music
+    let audioCtx = null;
+    let isPlaying = false;
+    let synthTimer = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function toggleMusic() {
+      initAudio();
+      const btn = document.getElementById('musicBtn');
+      if (isPlaying) {
+        isPlaying = false;
+        clearInterval(synthTimer);
+        btn.textContent = '🔇 Music';
+      } else {
+        isPlaying = true;
+        btn.textContent = '🔊 Music';
+        playMusicLoop();
+      }
+    }
+
+    function playNote(freq, duration, type = 'sine', gainVal = 0.05) {
+      if (!audioCtx || audioCtx.state !== 'running') return;
+      
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      
+      gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playMusicLoop() {
+      const chords = [
+        [261.63, 329.63, 392.00, 523.25], // C Major
+        [220.00, 261.63, 329.63, 440.00], // A Minor
+        [174.61, 220.00, 261.63, 349.23], // F Major
+        [196.00, 246.94, 293.66, 392.00]  // G Major
+      ];
+      let step = 0;
+
+      synthTimer = setInterval(() => {
+        if (!isPlaying) return;
+        const currentChord = chords[Math.floor(step / 4) % chords.length];
+        const note = currentChord[step % currentChord.length];
+        playNote(note, 0.8, 'triangle', 0.04);
+        step++;
+      }, 400);
+    }
+
+    function init() {
+      a = [...Array(15)].map((_, i) => i + 1);
+      a.push(0);
+
+      for (let z = 0; z < 250; z++) {
+        let i = a.indexOf(0);
+        let r = Math.floor(i / 4);
+        let c = i % 4;
+        let o = [];
+
+        if (r) o.push(i - 4);
+        if (r < 3) o.push(i + 4);
+        if (c) o.push(i - 1);
+        if (c < 3) o.push(i + 1);
+
+        let j = o[Math.floor(Math.random() * o.length)];
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+
+      moves = 0;
+      render();
+    }
+
+    function render() {
+      let b = document.getElementById('board');
+      b.innerHTML = '';
+
+      a.forEach((v, i) => {
+        let q = document.createElement('button');
+        q.className = 'tile' + (!v ? ' empty' : '');
+        q.textContent = v || '';
+        q.onclick = () => move(i);
+        b.appendChild(q);
+      });
+
+      document.getElementById('moves').textContent = moves;
+    }
+
+    function move(i) {
+      if (!isPlaying && !audioCtx) {
+        toggleMusic(); // Autoplay music on first move
+      }
+
+      let z = a.indexOf(0);
+      let r = Math.floor(i / 4);
+      let c = i % 4;
+      let zr = Math.floor(z / 4);
+      let zc = z % 4;
+
+      if (Math.abs(r - zr) + Math.abs(c - zc) !== 1) return;
+
+      [a[i], a[z]] = [a[z], a[i]];
+      moves++;
+      render();
+
+      if (a.every((v, i) => v === (i + 1) % 16)) {
+        setTimeout(() => alert('🎉 Puzzle solved!'), 100);
+      }
+    }
+
+    init();
+  </script>
+
+</body>
+</html>

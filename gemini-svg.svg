@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5434b9"/>
+      <stop offset="100%" stop-color="#090d24"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#75eaff"/>
+      <stop offset="100%" stop-color="#ff82c8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Rounded Badge -->
+  <rect width="64" height="64" rx="18" fill="url(#bg)"/>
+  <rect width="62" height="62" x="1" y="1" rx="17" fill="none" stroke="#ffffff" stroke-opacity="0.25" stroke-width="1.5"/>
+
+  <!-- KR Logo Text -->
+  <text x="32" y="43" 
+        font-family="Inter, system-ui, Arial, sans-serif" 
+        font-size="30" 
+        font-weight="900" 
+        letter-spacing="-1.5" 
+        text-anchor="middle" 
+        fill="url(#textGrad)">KR</text>
+</svg>
